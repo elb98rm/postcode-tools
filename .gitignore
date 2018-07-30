@@ -1,0 +1,8 @@
+# IDEs
+.idea
+
+# Local file uses
+composer.phar
+
+# Vendor
+/vendor/
