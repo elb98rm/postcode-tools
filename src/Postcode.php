@@ -127,6 +127,34 @@ class Postcode
      */
     protected $postcode_regex = '/^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z])))) [0-9][A-Za-z]{2})$/';
 
+    /**
+     * @var string $laua Local Authority District (LAD)/unitary authority (UA)/ metropolitan district (MD)/ London
+     * borough (LB)/ council area (CA)/district council area (DCA)
+     *
+     * In plain english: the "Local Government" for the postcode.
+     */
+    protected $laua;
+
+    /**
+     * @var string $region The region of the country for this postcode
+     */
+    protected $region;
+
+    /**
+     * @var string $country Country for this postcode
+     */
+    protected $country;
+
+    /**
+     * @var string $hpi_region The UK House Price Index for the region
+     */
+    protected $hpi_region;
+
+    /**
+     * @var string $itv_region The ITV region for the postcode
+     */
+    protected $itv_region;
+
     // from these we can create:
 
     /**
@@ -289,6 +317,7 @@ class Postcode
     protected function setSectorCharacter(int $sector_character): Postcode
     {
         $this->sector_character = $sector_character;
+        return $this;
     }
 
     /**
@@ -359,6 +388,7 @@ class Postcode
     public function setInwardCode(string $inward_code): Postcode
     {
         $this->inward_code = $inward_code;
+
         return $this;
     }
 
@@ -416,6 +446,125 @@ class Postcode
     public function getInwardCodeRegex(): string
     {
         return $this->inward_code_regex;
+    }
+
+    /**
+     * @return string
+     */
+    public function getLaua(): string
+    {
+        return $this->laua;
+    }
+
+    /**
+     * Protected as for internal use only. Update this by using postcodeLookup()
+     *
+     * @see Postcode::postcodeLookup()
+     *
+     * @param string $laua
+     *
+     * @return Postcode
+     */
+    protected function setLaua(string $laua): Postcode
+    {
+        $this->laua = $laua;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getRegion(): string
+    {
+        return $this->region;
+    }
+
+    /**
+     * Protected as for internal use only. Update this by using postcodeLookup()
+     *
+     * @see Postcode::postcodeLookup()
+     *
+     * @param string $region
+     *
+     * @return Postcode
+     */
+    protected function setRegion(string $region): Postcode
+    {
+        $this->region = $region;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getCountry(): string
+    {
+        return $this->country;
+    }
+
+    /**
+     * Protected as for internal use only. Update this by using postcodeLookup()
+     *
+     * @see Postcode::postcodeLookup()
+     *
+     * @param string $country
+     *
+     * @return Postcode
+     */
+    public function setCountry(string $country): Postcode
+    {
+        $this->country = $country;
+
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getHpiRegion(): string
+    {
+        return $this->hpi_region;
+    }
+
+    /**
+     * Protected as for internal use only. Update this by using postcodeLookup()
+     *
+     * @see Postcode::postcodeLookup()
+     *
+     * @param string $hpi_region
+     *
+     * @return Postcode
+     */
+    public function setHpiRegion(string $hpi_region): Postcode
+    {
+        $this->hpi_region = $hpi_region;
+        return $this;
+    }
+
+    /**
+     * @return string
+     */
+    public function getItvRegion(): string
+    {
+        return $this->itv_region;
+    }
+
+    /**
+     * Protected as for internal use only. Update this by using postcodeLookup()
+     *
+     * @see Postcode::postcodeLookup()
+     *
+     * @param string $itv_region
+     *
+     * @return Postcode
+     */
+    public function setItvRegion(string $itv_region): Postcode
+    {
+        $this->itv_region = $itv_region;
+
+        return $this;
     }
 
     // General methods
@@ -586,6 +735,26 @@ class Postcode
         } else {
             return null;
         }
+    }
+
+    /**
+     * Uses the specified connection and attempts to populate the remaining data from the database.
+     *
+     * @return bool
+     */
+    public function postcodeLookup(): bool
+    {
+        // @todo implement this properly once DBAL/etc connection types are sorted.
+
+        // do lookup
+
+        //$this->setLaua()
+        //$this->setRegion()
+        //$this->setCountry()
+        //$this->HpiRegion()
+        //$this->setItvRegion()
+
+        return false;
     }
 
 }
