@@ -52,6 +52,11 @@ class Postcode
     ];
 
     /**
+     * @var Injected Symfony DBAL connection.
+     */
+    protected $dbal;
+
+    /**
      * A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single
      * major delivery point
      *
@@ -588,6 +593,11 @@ class Postcode
 
     /**
      * Load as much as possible for quick instantiation within code:
+     *
+     * If only a postcode is included, it will be parsed.
+     *
+     * @param null|string $postcode
+     * @param null|string $dbal
      */
     public function __construct(
         ?string $postcode = null,
@@ -804,6 +814,8 @@ class Postcode
     {
         // @todo implement this properly once DBAL/etc connection types are sorted.
 
+        $this->status['db_connection'] = 'Database connection failed';
+
         return false;
     }
 
@@ -818,11 +830,17 @@ class Postcode
 
         // do lookup
 
-        //$this->setLaua()
-        //$this->setRegion()
-        //$this->setCountry()
-        //$this->HpiRegion()
-        //$this->setItvRegion()
+        if ()
+
+            //$this->setLaua()
+            //$this->setRegion()
+            //$this->setCountry()
+            //$this->HpiRegion()
+            //$this->setItvRegion()
+
+        {
+            $this->status['postcode_lookup'] = 'Postcode lookup failed';
+        }
 
         return false;
     }
