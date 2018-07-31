@@ -41,6 +41,17 @@ class Postcode
     // Properties
 
     /**
+     * Statuses of the various Postcode tools/methods.
+     *
+     * @var array $status
+     */
+    protected $status = [
+        'postcode_load'   => 'Not attempted',
+        'db_connection'   => 'Not attempted',
+        'postcode_lookup' => 'Not attempted'
+    ];
+
+    /**
      * A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single
      * major delivery point
      *
@@ -48,7 +59,7 @@ class Postcode
      * "S1 1DJ" (Republic nightclub - RIP)
      * "GL51 0EX" (GCHQ)
      *
-     * @var string $postcode
+     * @var null|string $postcode
      */
     protected $postcode;
 
@@ -57,7 +68,7 @@ class Postcode
      *
      * For example: "S", "GL"
      *
-     * @var string $area
+     * @var null|string $area
      */
     protected $area;
 
@@ -66,7 +77,7 @@ class Postcode
      *
      * For example: "1", "51"
      *
-     * @var int $district
+     * @var null|int $district
      */
     protected $district;
 
@@ -75,7 +86,7 @@ class Postcode
      *
      * For example: "S1", "GL51"
      *
-     * @var int $outward_code
+     * @var null|int $outward_code
      */
     protected $outward_code;
 
@@ -84,7 +95,7 @@ class Postcode
      *
      * For example: "1", "0"
      *
-     * @var int $sector_character
+     * @var null|int $sector_character
      */
     protected $sector_character;
 
@@ -94,7 +105,7 @@ class Postcode
      *
      * For example: "S1 1", "GL51 0"
      *
-     * @var string $sector
+     * @var null|string $sector
      */
     protected $sector;
 
@@ -106,7 +117,7 @@ class Postcode
      *
      * For example: "DJ", "EX"
      *
-     * @var string $unit
+     * @var null|string $unit
      */
     protected $unit;
 
@@ -115,9 +126,41 @@ class Postcode
      *
      * For example: "1DJ", "0EX"
      *
-     * @var int inward_code
+     * @var null|int inward_code
      */
     protected $inward_code;
+
+    /**
+     * @var null|string $laua Local government
+     *
+     * Local Authority District (LAD)/unitary authority (UA)/ metropolitan district (MD)/ London
+     * borough (LB)/ council area (CA)/district council area (DCA)
+     *
+     * In plain english: the "Local Government" for the postcode.
+     */
+    protected $laua;
+
+    /**
+     * @var null|string $region The region of the country for this postcode
+     */
+    protected $region;
+
+    /**
+     * @var null|string $country Country for this postcode
+     */
+    protected $country;
+
+    /**
+     * @var null|string $hpi_region The UK House Price Index for the region
+     */
+    protected $hpi_region;
+
+    /**
+     * @var null|string $itv_region The ITV region for the postcode
+     */
+    protected $itv_region;
+
+    // REGEX
 
     /**
      * "The UK government has [..] provided the following regular expression [..] for the purpose of validation"
@@ -126,34 +169,6 @@ class Postcode
      * @var string $postcode_regex
      */
     protected $postcode_regex = '/^([Gg][Ii][Rr] 0[Aa]{2})|((([A-Za-z][0-9]{1,2})|(([A-Za-z][A-Ha-hJ-Yj-y][0-9]{1,2})|(([A-Za-z][0-9][A-Za-z])|([A-Za-z][A-Ha-hJ-Yj-y][0-9]?[A-Za-z])))) [0-9][A-Za-z]{2})$/';
-
-    /**
-     * @var string $laua Local Authority District (LAD)/unitary authority (UA)/ metropolitan district (MD)/ London
-     * borough (LB)/ council area (CA)/district council area (DCA)
-     *
-     * In plain english: the "Local Government" for the postcode.
-     */
-    protected $laua;
-
-    /**
-     * @var string $region The region of the country for this postcode
-     */
-    protected $region;
-
-    /**
-     * @var string $country Country for this postcode
-     */
-    protected $country;
-
-    /**
-     * @var string $hpi_region The UK House Price Index for the region
-     */
-    protected $hpi_region;
-
-    /**
-     * @var string $itv_region The ITV region for the postcode
-     */
-    protected $itv_region;
 
     // from these we can create:
 
@@ -202,9 +217,9 @@ class Postcode
     // Accessors
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getPostcode(): string
+    public function getPostcode(): ?string
     {
         return $this->postcode;
     }
@@ -214,11 +229,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $postcode
+     * @param null|string $postcode
      *
      * @return Postcode
      */
-    protected function setPostcode(string $postcode): Postcode
+    protected function setPostcode(?string $postcode): Postcode
     {
         $this->postcode = $postcode;
 
@@ -226,9 +241,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getArea(): string
+    public function getArea(): ?string
     {
         return $this->area;
     }
@@ -238,11 +253,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $area
+     * @param null|string $area
      *
      * @return Postcode
      */
-    protected function setArea(string $area): Postcode
+    protected function setArea(?string $area): Postcode
     {
         $this->area = $area;
 
@@ -250,9 +265,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getDistrict(): string
+    public function getDistrict(): ?string
     {
         return $this->district;
     }
@@ -262,11 +277,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $district
+     * @param null|string $district
      *
      * @return Postcode
      */
-    protected function setDistrict(string $district): Postcode
+    protected function setDistrict(?string $district): Postcode
     {
         $this->district = $district;
 
@@ -274,9 +289,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getOutwardCode(): string
+    public function getOutwardCode(): ?string
     {
         return $this->outward_code;
     }
@@ -286,11 +301,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $outward_code
+     * @param null|string $outward_code
      *
      * @return Postcode
      */
-    protected function setOutwardCode(string $outward_code): Postcode
+    protected function setOutwardCode(?string $outward_code): Postcode
     {
         $this->outward_code = $outward_code;
 
@@ -298,9 +313,9 @@ class Postcode
     }
 
     /**
-     * @return int
+     * @return null|int
      */
-    public function getSectorCharacter(): int
+    public function getSectorCharacter(): ?int
     {
         return $this->sector_character;
     }
@@ -310,20 +325,21 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param int $sector_character
+     * @param null|int $sector_character
      *
      * @return Postcode
      */
-    protected function setSectorCharacter(int $sector_character): Postcode
+    protected function setSectorCharacter(?int $sector_character): Postcode
     {
         $this->sector_character = $sector_character;
+
         return $this;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getSector(): string
+    public function getSector(): ?string
     {
         return $this->sector;
     }
@@ -333,11 +349,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $sector
+     * @param null|string $sector
      *
      * @return Postcode
      */
-    protected function setSector(string $sector): Postcode
+    protected function setSector(?string $sector): Postcode
     {
         $this->sector = $sector;
 
@@ -345,9 +361,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getUnit(): string
+    public function getUnit(): ?string
     {
         return $this->unit;
     }
@@ -357,11 +373,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $unit
+     * @param null|string $unit
      *
      * @return Postcode
      */
-    protected function setUnit(string $unit): Postcode
+    protected function setUnit(?string $unit): Postcode
     {
         $this->unit = $unit;
 
@@ -369,9 +385,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getInwardCode(): string
+    public function getInwardCode(): ?string
     {
         return $this->inward_code;
     }
@@ -381,11 +397,11 @@ class Postcode
      *
      * @see Postcode::loadPostcode()
      *
-     * @param string $inward_code
+     * @param null|string $inward_code
      *
      * @return Postcode
      */
-    public function setInwardCode(string $inward_code): Postcode
+    public function setInwardCode(?string $inward_code): Postcode
     {
         $this->inward_code = $inward_code;
 
@@ -403,7 +419,7 @@ class Postcode
     /**
      * @return string
      */
-    public function getAreaRegex(): string
+    public function getAreaRegex(): ?string
     {
         return $this->area_regex;
     }
@@ -449,9 +465,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getLaua(): string
+    public function getLaua(): ?string
     {
         return $this->laua;
     }
@@ -461,11 +477,11 @@ class Postcode
      *
      * @see Postcode::postcodeLookup()
      *
-     * @param string $laua
+     * @param null|string $laua
      *
      * @return Postcode
      */
-    protected function setLaua(string $laua): Postcode
+    protected function setLaua(?string $laua): Postcode
     {
         $this->laua = $laua;
 
@@ -473,9 +489,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getRegion(): string
+    public function getRegion(): ?string
     {
         return $this->region;
     }
@@ -485,11 +501,11 @@ class Postcode
      *
      * @see Postcode::postcodeLookup()
      *
-     * @param string $region
+     * @param null|string $region
      *
      * @return Postcode
      */
-    protected function setRegion(string $region): Postcode
+    protected function setRegion(?string $region): Postcode
     {
         $this->region = $region;
 
@@ -497,9 +513,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getCountry(): string
+    public function getCountry(): ?string
     {
         return $this->country;
     }
@@ -509,11 +525,11 @@ class Postcode
      *
      * @see Postcode::postcodeLookup()
      *
-     * @param string $country
+     * @param null|string $country
      *
      * @return Postcode
      */
-    public function setCountry(string $country): Postcode
+    public function setCountry(?string $country): Postcode
     {
         $this->country = $country;
 
@@ -521,9 +537,9 @@ class Postcode
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getHpiRegion(): string
+    public function getHpiRegion(): ?string
     {
         return $this->hpi_region;
     }
@@ -533,20 +549,21 @@ class Postcode
      *
      * @see Postcode::postcodeLookup()
      *
-     * @param string $hpi_region
+     * @param null|string $hpi_region
      *
      * @return Postcode
      */
-    public function setHpiRegion(string $hpi_region): Postcode
+    public function setHpiRegion(?string $hpi_region): Postcode
     {
         $this->hpi_region = $hpi_region;
+
         return $this;
     }
 
     /**
-     * @return string
+     * @return null|string
      */
-    public function getItvRegion(): string
+    public function getItvRegion(): ?string
     {
         return $this->itv_region;
     }
@@ -556,15 +573,42 @@ class Postcode
      *
      * @see Postcode::postcodeLookup()
      *
-     * @param string $itv_region
+     * @param null|string $itv_region
      *
      * @return Postcode
      */
-    public function setItvRegion(string $itv_region): Postcode
+    public function setItvRegion(?string $itv_region): Postcode
     {
         $this->itv_region = $itv_region;
 
         return $this;
+    }
+
+    // Constructor
+
+    /**
+     * Load as much as possible for quick instantiation within code:
+     */
+    public function __construct(
+        ?string $postcode = null,
+        ?string $dbal = null
+    ) {
+
+        if ($postcode) {
+            // automatically load the postcode
+            $this->loadPostcode($postcode);
+        }
+
+        if ($dbal) {
+            // automatically ensure the DB is connected
+            // @todo add support
+        }
+
+        if ($this->checkConnection() && $this->getPostcode()) {
+            // automatically load the postcode
+            $this->postcodeLookup();
+        }
+
     }
 
     // General methods
@@ -723,6 +767,7 @@ class Postcode
         $postcode = $this->validatePostcode($postcode);
 
         if ($postcode) {
+            // load it in as expected
             $this->setPostcode($postcode)
                  ->setArea($this->validateArea($postcode))
                  ->setDistrict($this->validateDistrict($postcode))
@@ -731,10 +776,35 @@ class Postcode
                  ->setUnit($this->validateUnit($postcode))
                  ->setInwardCode($this->validateInwardCode($postcode));
 
+            $this->status['postcode_load'] = 'Postcode loaded successfully';
+
             return $postcode;
         } else {
+            // clear the object to stop any residual data
+            $this->setPostcode($postcode)
+                 ->setArea(null)
+                 ->setDistrict(null)
+                 ->setOutwardCode(null)
+                 ->setSector(null)
+                 ->setUnit(null)
+                 ->setInwardCode(null);
+
+            $this->status['postcode_load'] = 'Postcode validation failed';
+
             return null;
         }
+    }
+
+    /**
+     * Checks that the current connection is as expected
+     *
+     * @return bool
+     */
+    public function checkConnection(): bool
+    {
+        // @todo implement this properly once DBAL/etc connection types are sorted.
+
+        return false;
     }
 
     /**
