@@ -1,22 +1,26 @@
 {
-    "name": "floor9design/postcode-tools",
-    "description": "Standard for PHP package skeletons.",
-    "homepage": "https://github.com/php-pds/skeleton",
-    "license": "MIT",
-    "require-dev": {
-        "phpunit/phpunit": "7.*",
-        "phpunit/php-code-coverage": ">=6",
-        "mockery/mockery": "dev-master",
-        "phpdocumentor/phpdocumentor": "2.*"
-    },
-    "autoload": {
-        "psr-4": {
-            "Floor9design\\PostcodeTools\\": "src/"
-        }
-    },
-    "autoload-dev": {
-        "psr-4": {
-            "Floor9design\\PostcodeTools\\": "tests/"
-        }
+  "name": "floor9design/postcode-tools",
+  "description": "Standard for PHP package skeletons.",
+  "homepage": "https://github.com/php-pds/skeleton",
+  "license": "MIT",
+  "require": {
+    "php": ">=7.2",
+    "doctrine/dbal": ">=2.7"
+  },
+  "require-dev": {
+    "phpunit/phpunit": "7.*",
+    "phpunit/php-code-coverage": ">=6",
+    "mockery/mockery": "dev-master",
+    "phpdocumentor/phpdocumentor": "2.*"
+  },
+  "autoload": {
+    "psr-4": {
+      "Floor9design\\PostcodeTools\\": "src/"
     }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "Floor9design\\PostcodeTools\\": "tests/"
+    }
+  }
 }
