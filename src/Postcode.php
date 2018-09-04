@@ -20,11 +20,14 @@
 
 namespace Floor9design\PostcodeTools;
 
+use Illuminate\Database\Capsule\Manager as Capsule;
+use Illuminate\Database\Connection;
+
 /**
  * Class Postcode
  *
  * Models a UK postcode offering for functions for analysis.
- * Note, set accessors are protected to force validation.
+ * Note, set accessors are protected to force external validation.
  *
  * @category  None
  * @package   Floor9design\PostcodeTools
@@ -38,6 +41,8 @@ namespace Floor9design\PostcodeTools;
  */
 class Postcode
 {
+    use NSPLTrait;
+
     // Properties
 
     /**
@@ -52,9 +57,9 @@ class Postcode
     ];
 
     /**
-     * @var Injected Symfony DBAL connection.
+     * @var Connection $connection Injected Symfony DBAL connection.
      */
-    protected $dbal;
+    protected $connection;
 
     /**
      * A full postcode is known as a "postcode unit" and designates an area with a number of addresses or a single
@@ -136,16 +141,6 @@ class Postcode
     protected $inward_code;
 
     /**
-     * @var null|string $laua Local government
-     *
-     * Local Authority District (LAD)/unitary authority (UA)/ metropolitan district (MD)/ London
-     * borough (LB)/ council area (CA)/district council area (DCA)
-     *
-     * In plain english: the "Local Government" for the postcode.
-     */
-    protected $laua;
-
-    /**
      * @var null|string $region The region of the country for this postcode
      */
     protected $region;
@@ -220,6 +215,36 @@ class Postcode
     protected $inward_code_regex = '/\s([0-9][A-Za-z]{2})/';
 
     // Accessors
+
+    /**
+     * @return null|Connection
+     */
+    public function getConnection(): ?Connection
+    {
+        return $this->connection;
+    }
+
+    /**
+     * @param null|Connection $connection
+     *
+     * @see Connection
+     *
+     * @return Postcode
+     */
+    public function setConnection(?Connection $connection): Postcode
+    {
+        $this->connection = $connection;
+
+        return $this;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatus(): array
+    {
+        return $this->status;
+    }
 
     /**
      * @return null|string
@@ -472,30 +497,6 @@ class Postcode
     /**
      * @return null|string
      */
-    public function getLaua(): ?string
-    {
-        return $this->laua;
-    }
-
-    /**
-     * Protected as for internal use only. Update this by using postcodeLookup()
-     *
-     * @see Postcode::postcodeLookup()
-     *
-     * @param null|string $laua
-     *
-     * @return Postcode
-     */
-    protected function setLaua(?string $laua): Postcode
-    {
-        $this->laua = $laua;
-
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
     public function getRegion(): ?string
     {
         return $this->region;
@@ -597,11 +598,11 @@ class Postcode
      * If only a postcode is included, it will be parsed.
      *
      * @param null|string $postcode
-     * @param null|string $dbal
+     * @param null|Connection $connection a DBAL connection
      */
     public function __construct(
         ?string $postcode = null,
-        ?string $dbal = null
+        ?Capsule $connection = null
     ) {
 
         if ($postcode) {
@@ -609,9 +610,10 @@ class Postcode
             $this->loadPostcode($postcode);
         }
 
-        if ($dbal) {
-            // automatically ensure the DB is connected
-            // @todo add support
+        if ($connection) {
+            $this->setConnection($connection->getConnection());
+
+            var_dump($this->checkConnection(), $this->getPostcode());
         }
 
         if ($this->checkConnection() && $this->getPostcode()) {
@@ -812,11 +814,23 @@ class Postcode
      */
     public function checkConnection(): bool
     {
-        // @todo implement this properly once DBAL/etc connection types are sorted.
+        if ($this->getConnection() && $this->getConnection()->getDoctrineConnection()->isConnected()) {
+            // connection is active
+            $this->status['db_connection'] = 'Database connection active, database not checked';
 
-        $this->status['db_connection'] = 'Database connection failed';
+            $schemaManager = $this->getConnection()->getDoctrineConnection()->getSchemaManager();
+            if (
+                $schemaManager->tablesExist(['postcode_nspls']) == true
+            ) {
+                $this->status['db_connection'] = 'Database connection active, tables confirmed';
+            }
 
-        return false;
+            return true;
+
+        } else {
+            $this->status['db_connection'] = 'Database connection failed';
+            return false;
+        }
     }
 
     /**
@@ -826,23 +840,41 @@ class Postcode
      */
     public function postcodeLookup(): bool
     {
-        // @todo implement this properly once DBAL/etc connection types are sorted.
 
-        // do lookup
+        if ($this->checkConnection()) {
 
-        if ()
+            // Load the postcode and set all the values
+            // Note we will translate the relevant ones (by joining to other tables)
+            $results = $this->getConnection()->table('postcode_nspls')
+                ->where('pcd', '=', $this->getPostcode())
+                ->orWhere('pcd2', '=', $this->getPostcode())
+                ->first();
 
-            //$this->setLaua()
-            //$this->setRegion()
-            //$this->setCountry()
-            //$this->HpiRegion()
-            //$this->setItvRegion()
+            if(!$results) {
+                $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
+            } else {
+                $this->status['postcode_lookup'] = 'The postcode was found';
 
-        {
+                // Manually set the properties
+                foreach($results as $key => $value) {
+                    $this->$key = $value;
+                }
+
+            }
+
+        } else {
+
+            $this->setLaua(null)
+                 ->setRegion(null)
+                 ->setCountry(null)
+                 ->setHpiRegion(null)
+                 ->setItvRegion(null);
+
             $this->status['postcode_lookup'] = 'Postcode lookup failed';
         }
 
         return false;
     }
+
 
 }

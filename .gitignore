@@ -1,8 +1,11 @@
 # IDEs
 .idea
 
-# Local file uses
-composer.phar
+# Config
+/config/database.php
 
 # Vendor
 /vendor/
+
+# Database files
+/database/source/*
