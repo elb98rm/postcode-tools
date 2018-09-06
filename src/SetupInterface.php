@@ -67,6 +67,12 @@ interface SetupInterface
     public function createOsgrdinds(): bool;
 
     /**
+     * Sets up and populates the postcode_oal1s table
+     * @return bool
+     */
+    public function createOal1s(): bool;
+
+    /**
      * Sets up and populates the postcode_counties table
      *
      * @return bool
@@ -172,6 +178,20 @@ interface SetupInterface
     public function createParks(): bool;
 
     /**
+     * Sets up and populates the postcode_lsoa11s table
+     *
+     * @return bool
+     */
+    public function createLsoa11s(): bool;
+
+    /**
+     * Sets up and populates the postcode_wz11s table
+     *
+     * @return bool
+     */
+    public function createWz11s(): bool;
+
+    /**
      * Sets up and populates the postcode_ccgs table
      *
      * @return bool
@@ -212,5 +232,19 @@ interface SetupInterface
      * @return bool
      */
     public function createLeps(): bool;
+
+    /**
+     * Sets up and populates the postcode_pfas table
+     *
+     * @return bool
+     */
+    public function createPfas(): bool;
+
+    /**
+     * Sets up and populates the postcode_imds table
+     *
+     * @return bool
+     */
+    public function createImds(): bool;
 
 }

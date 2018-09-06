@@ -6,8 +6,8 @@
  * @var array $connection_params
  */
 $connection_params = array(
-    'dbname' => 'mydb',
-    'user' => 'user',
+    'database' => 'mydb',
+    'username' => 'user',
     'password' => 'secret',
     'host' => 'localhost',
     'driver' => 'mysql',

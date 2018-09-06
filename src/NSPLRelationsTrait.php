@@ -105,13 +105,13 @@ trait NSPLRelationsTrait
     protected $ctry12nm;
 
     /**
-     * rgn_gor10nm
+     * gor10nm
      *
      * @see ../docs/main/nspl_properties.md
      * @see $rgn
-     * @var string $rgn_gor10nm
+     * @var string $gor10nm
      */
-    protected $rgn_gor10nm;
+    protected $gor10nm;
 
     /**
      * pcon14nm
@@ -123,13 +123,13 @@ trait NSPLRelationsTrait
     protected $pcon14nm;
 
     /**
-     * eer_gor10nm
+     * eer10nm
      *
      * @see ../docs/main/nspl_properties.md
-     * @see $rgns
-     * @var string $eer_gor10nm
+     * @see $eers
+     * @var string $eer10nm
      */
-    protected $eer_gor10nm;
+    protected $eer10nm;
 
     /**
      * teclecnm
@@ -184,6 +184,15 @@ trait NSPLRelationsTrait
      * @var string $bua13nm
      */
     protected $bua13nm;
+
+    /**
+     * buasd13nm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $buasd13cd
+     * @var string $buasd13nm
+     */
+    protected $buasd13nm;
 
     /**
      * ru11inm
@@ -309,9 +318,9 @@ trait NSPLRelationsTrait
     /**
      * @return int|string
      */
-    public function getRgnGor10nm(): ?string
+    public function getGor10nm(): ?string
     {
-        return $this->rgn_gor10nm;
+        return $this->gor10nm;
     }
 
     /**
@@ -325,9 +334,9 @@ trait NSPLRelationsTrait
     /**
      * @return int|string
      */
-    public function getEerGor10nm(): ?string
+    public function getEer10nm(): ?string
     {
-        return $this->eer_gor10nm;
+        return $this->eer10nm;
     }
 
     /**
@@ -378,12 +387,68 @@ trait NSPLRelationsTrait
         return $this->bua13nm;
     }
 
-    //       left join postcode_buasd11s on postcode_nspls.buasd11 = postcode_buasd11s.buasd13cd
-    //       left join postcode_ru11inds on postcode_nspls.ru11ind = postcode_ru11inds.ru11ind
-    //       left join postcode_oac11s on postcode_nspls.oac11 = postcode_oac11s.oac11
-    //       left join postcode_leps as leps1 on postcode_nspls.lep1 = leps1.lep17cd
-    //       left join postcode_leps as leps2 on postcode_nspls.lep2 = leps2.lep17cd
-    //       left join postcode_pfas on postcode_nspls.pfa = postcode_pfas.pfa15cd
+    /**
+     * @return int|string
+     */
+    public function getBuasd13nm(): ?string
+    {
+        return $this->buasd13nm;
+    }
 
+    /**
+     * @return int|string
+     */
+    public function getRu11nm(): ?string
+    {
+        return $this->ru11nm;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getOac11Supergroup(): ?string
+    {
+        return $this->oac11_supergroup;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getOac11Group(): ?string
+    {
+        return $this->oac11_group;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getOac11Subgroup(): ?string
+    {
+        return $this->oac11_subgroup;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getLep1Lep17nm(): ?string
+    {
+        return $this->lep1_lep17nm;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getLep2Lep17nm(): ?string
+    {
+        return $this->lep2_lep17nm;
+    }
+
+    /**
+     * @return int|string
+     */
+    public function getPfa15nm(): ?string
+    {
+        return $this->pfa15nm;
+    }
 
 }

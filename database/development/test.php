@@ -25,6 +25,7 @@ if (!$postcode->getConnection()) {
     echo "\nLaua: " . $postcode->getLad17nm() . '(' . $postcode->getLaua() . ')';
     echo "\nWard: " . $postcode->getWd17nm() . '(' . $postcode->getWard() . ')';
     echo "\nNHS Region: " . $postcode->getNhser17nm() . '(' . $postcode->getNhser() . ')';
+    echo "\nOAC: " . $postcode->getOac11() . '(' . $postcode->getOac11Supergroup() . ', ' . $postcode->getOac11Group() . ', ' . $postcode->getOac11Subgroup() . ')';
     echo "\nLat: " . $postcode->getLat();
-    echo "\nCountry Code: " . $postcode->getCtry();
+    echo "\nCountry: " . $postcode->getCtry12nm() . '(' . $postcode->getCtry() . ')';
 }

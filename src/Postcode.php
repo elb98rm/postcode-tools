@@ -52,8 +52,8 @@ class Postcode
      * @var array $status
      */
     protected $status = [
-        'postcode_load'   => 'Not attempted',
-        'db_connection'   => 'Not attempted',
+        'postcode_load' => 'Not attempted',
+        'db_connection' => 'Not attempted',
         'postcode_lookup' => 'Not attempted'
     ];
 
@@ -141,26 +141,6 @@ class Postcode
      */
     protected $inward_code;
 
-    /**
-     * @var null|string $region The region of the country for this postcode
-     */
-    protected $region;
-
-    /**
-     * @var null|string $country Country for this postcode
-     */
-    protected $country;
-
-    /**
-     * @var null|string $hpi_region The UK House Price Index for the region
-     */
-    protected $hpi_region;
-
-    /**
-     * @var null|string $itv_region The ITV region for the postcode
-     */
-    protected $itv_region;
-
     // REGEX
 
     /**
@@ -218,6 +198,299 @@ class Postcode
     // Accessors
 
     /**
+     * Load as much as possible for quick instantiation within code:
+     *
+     * If only a postcode is included, it will be parsed.
+     *
+     * @param null|string $postcode
+     * @param null|Connection $connection a DBAL connection
+     */
+    public function __construct(
+        ?string $postcode = null,
+        ?Capsule $connection = null
+    ) {
+
+        if ($postcode) {
+            // automatically load the postcode
+            $this->loadPostcode($postcode);
+        }
+
+        if ($connection) {
+            $this->setConnection($connection->getConnection());
+        }
+
+        if ($this->checkConnection() && $this->getPostcode()) {
+            // automatically load the postcode
+            $this->postcodeLookup();
+        }
+
+    }
+
+    /**
+     * This takes a string and fully parses it into the system.
+     * This is the public method, other is protected to ensure parsing is done properly.
+     *
+     * @see Postcode::setPostcode()
+     *
+     * @param string $postcode
+     *
+     * @return null|string
+     */
+    public function loadPostcode(string $postcode): ?string
+    {
+        $postcode = $this->validatePostcode($postcode);
+
+        if ($postcode) {
+            // load it in as expected
+            $this->setPostcode($postcode)
+                ->setArea($this->validateArea($postcode))
+                ->setDistrict($this->validateDistrict($postcode))
+                ->setOutwardCode($this->validateOutwardCode($postcode))
+                ->setSector($this->validateSector($postcode))
+                ->setUnit($this->validateUnit($postcode))
+                ->setInwardCode($this->validateInwardCode($postcode));
+
+            $this->status['postcode_load'] = 'Postcode loaded successfully';
+
+            return $postcode;
+        } else {
+            // clear the object to stop any residual data
+            $this->setPostcode($postcode)
+                ->setArea(null)
+                ->setDistrict(null)
+                ->setOutwardCode(null)
+                ->setSector(null)
+                ->setUnit(null)
+                ->setInwardCode(null);
+
+            $this->status['postcode_load'] = 'Postcode validation failed';
+
+            return null;
+        }
+    }
+
+    /**
+     * Validates a postcode: returns the postcode if valid, false otherwise.
+     *
+     * @param string $postcode
+     *
+     * @return null|string
+     */
+    public function validatePostcode(string $postcode): ?string
+    {
+        $matches = [];
+        preg_match($this->getPostcodeRegex(), $postcode, $matches);
+
+        if (count($matches)) {
+            return $matches[0];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getPostcodeRegex(): string
+    {
+        return $this->postcode_regex;
+    }
+
+    /**
+     * Validates an area: returns the area if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return an area
+     *
+     * @param string $area
+     *
+     * @return null|string
+     */
+    public function validateArea(string $area): ?string
+    {
+        $matches = [];
+        preg_match($this->getAreaRegex(), $area, $matches);
+
+        if (count($matches)) {
+            return $matches[0];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getAreaRegex(): ?string
+    {
+        return $this->area_regex;
+    }
+
+    /**
+     * Validates a district: returns the district if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return a district
+     *
+     * @param string $district
+     *
+     * @return null|string
+     */
+    public function validateDistrict(string $district): ?string
+    {
+        $matches = [];
+        preg_match($this->getDistrictRegex(), $district, $matches);
+
+        if (count($matches)) {
+            return $matches[0];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getDistrictRegex(): string
+    {
+        return $this->district_regex;
+    }
+
+    /**
+     * Validates an outward_code: returns the outward_code if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return an outward_code
+     *
+     * @param string $outward_code
+     *
+     * @return null|string
+     */
+    public function validateOutwardCode(string $outward_code): ?string
+    {
+        $matches = [];
+        preg_match($this->getOutwardCodeRegex(), $outward_code, $matches);
+
+        if (count($matches)) {
+            return $matches[0];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getOutwardCodeRegex(): string
+    {
+        return $this->outward_code_regex;
+    }
+
+    /**
+     * Validates a sector: returns the sector if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return a sector
+     *
+     * @param string $sector
+     *
+     * @return null|string
+     */
+    public function validateSector(string $sector): ?string
+    {
+        $matches = [];
+        preg_match($this->getSectorRegex(), $sector, $matches);
+
+        if (count($matches)) {
+            return $matches[1];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    protected function getSectorRegex(): string
+    {
+        return $this->sector_regex;
+    }
+
+    /**
+     * Validates a unit: returns the unit if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return a unit
+     *
+     * @param string $unit
+     *
+     * @return null|string
+     */
+    public function validateUnit(string $unit): ?string
+    {
+        $matches = [];
+        preg_match($this->getUnitRegex(), $unit, $matches);
+
+        if (count($matches)) {
+            return $matches[1];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getUnitRegex(): string
+    {
+        return $this->unit_regex;
+    }
+
+    /**
+     * Validates an inward_code: returns the inward_code if valid, false otherwise.
+     * This also strips the string: so using a full postcode will only return an inward_code
+     *
+     * @param string $inward_code
+     *
+     * @return null|string
+     */
+    public function validateInwardCode(string $inward_code): ?string
+    {
+        $matches = [];
+        preg_match($this->getInwardCodeRegex(), $inward_code, $matches);
+
+        if (count($matches)) {
+            return $matches[1];
+        } else {
+            return null;
+        }
+    }
+
+    /**
+     * @return string
+     */
+    public function getInwardCodeRegex(): string
+    {
+        return $this->inward_code_regex;
+    }
+
+    /**
+     * Checks that the current connection is as expected
+     *
+     * @return bool
+     */
+    public function checkConnection(): bool
+    {
+        if ($this->getConnection() && $this->getConnection()->getDoctrineConnection()->isConnected()) {
+            // connection is active
+            $this->status['db_connection'] = 'Database connection active, database not checked';
+
+            $schemaManager = $this->getConnection()->getDoctrineConnection()->getSchemaManager();
+            if (
+                $schemaManager->tablesExist(['postcode_nspls']) == true
+            ) {
+                $this->status['db_connection'] = 'Database connection active, tables confirmed';
+            }
+
+            return true;
+
+        } else {
+            $this->status['db_connection'] = 'Database connection failed';
+            return false;
+        }
+    }
+
+    /**
      * @return null|Connection
      */
     public function getConnection(): ?Connection
@@ -237,14 +510,6 @@ class Postcode
         $this->connection = $connection;
 
         return $this;
-    }
-
-    /**
-     * @return array
-     */
-    public function getStatus(): array
-    {
-        return $this->status;
     }
 
     /**
@@ -269,6 +534,100 @@ class Postcode
         $this->postcode = $postcode;
 
         return $this;
+    }
+
+    /**
+     * Uses the specified connection and attempts to populate the remaining data from the database.
+     *
+     * @todo add failsafes if the table doesn't exist
+     *
+     * @return bool
+     */
+    public function postcodeLookup(): bool
+    {
+
+        if ($this->checkConnection()) {
+
+            // Load the postcode and set all the values
+            // Note we will translate the relevant ones (by joining to other tables)
+            $results = $this->getConnection()->table('postcode_nspls')
+                ->select(
+                    'postcode_nspls.*',
+                    'postcode_usertypes.usertype as usertype_verbose',
+                    'postcode_osgrdinds.osgrdind as osgrdind_verbose',
+                    'postcode_ceds.ced17nm as ced17nm',
+                    'postcode_lauas.lad16nm as lad16nm',
+                    'postcode_wards.wd17nm as wd17nm',
+                    'postcode_nhsers.nhser17nm as nhser17nm',
+                    'postcode_countries.ctry12nm as ctry12nm',
+                    'postcode_rgns.gor10nm as rgn_gor10nm',
+                    'postcode_pcons.pcon14cd as pcon14nm',
+                    'postcode_eers.eer10nm as eer10nm',
+                    'postcode_teclecs.teclecnm as teclecnm',
+                    'postcode_ttwas.ttwa11nm as ttwa11nm',
+                    'postcode_ttwas.ttwa11nm as ttwa11nm',
+                    'postcode_nutss.lau216cd as lau216nm',
+                    'postcode_ccgs.ccg18nm as ccg18nm',
+                    'postcode_bua11s.bua13nm as bua13nm',
+                    'postcode_ru11inds.ru11nm as ru11nm',
+                    'postcode_oac11s.supergroup as oac11_supergroup',
+                    'postcode_oac11s.group as oac11_group',
+                    'postcode_oac11s.subgroup as oac11_subgroup',
+                    'leps1.lep17nm as leps1_lep17nm',
+                    'leps2.lep17nm as leps2_lep17nm',
+                    'postcode_pfas.pfa15nm'
+                )
+                ->leftJoin('postcode_usertypes', 'postcode_usertypes.usertype', '=', 'postcode_usertypes.id')
+                ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
+                ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
+                ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
+                ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
+                ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
+                ->leftJoin('postcode_countries', 'postcode_nspls.ctry', '=', 'postcode_countries.ctry12cd')
+                ->leftJoin('postcode_rgns', 'postcode_nspls.rgn', '=', 'postcode_rgns.gor10cd')
+                ->leftJoin('postcode_pcons', 'postcode_nspls.pcon', '=', 'postcode_pcons.pcon14cd')
+                ->leftJoin('postcode_eers', 'postcode_nspls.eer', '=', 'postcode_eers.eer10cd')
+                ->leftJoin('postcode_teclecs', 'postcode_nspls.teclec', '=', 'postcode_teclecs.tecleccd')
+                ->leftJoin('postcode_ttwas', 'postcode_nspls.ttwa', '=', 'postcode_ttwas.ttwa11cd')
+                ->leftJoin('postcode_nutss', 'postcode_nspls.nuts', '=', 'postcode_nutss.lau216cd')
+                ->leftJoin('postcode_parks', 'postcode_nspls.park', '=', 'postcode_parks.npark16cd')
+                ->leftJoin('postcode_ccgs', 'postcode_nspls.ccg', '=', 'postcode_ccgs.ccg18cd')
+                ->leftJoin('postcode_bua11s', 'postcode_nspls.bua11', '=', 'postcode_bua11s.bua13cd')
+                ->leftJoin('postcode_ru11inds', 'postcode_nspls.ru11ind', '=', 'postcode_ru11inds.ru11ind')
+                ->leftJoin('postcode_oac11s', 'postcode_nspls.oac11', '=', 'postcode_oac11s.oac11')
+                ->leftJoin('postcode_leps as leps1', 'postcode_nspls.lep1', '=', 'leps1.lep17cd')
+                ->leftJoin('postcode_leps as leps2', 'postcode_nspls.lep2', '=', 'leps2.lep17cd')
+                ->leftJoin('postcode_pfas', 'postcode_nspls.pfa', '=', 'postcode_pfas.pfa15cd')
+                ->where('pcd', '=', $this->getPostcode())
+                ->orWhere('pcd2', '=', $this->getPostcode())
+                ->first();
+
+            if (!$results) {
+                $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
+            } else {
+                $this->status['postcode_lookup'] = 'The postcode was found';
+
+                // Manually set the properties
+                foreach ($results as $key => $value) {
+                    $this->$key = $value;
+                }
+                echo $results->usertype_verbose;
+            }
+
+        } else {
+
+            $this->status['postcode_lookup'] = 'Postcode lookup failed';
+        }
+
+        return false;
+    }
+
+    /**
+     * @return array
+     */
+    public function getStatus(): array
+    {
+        return $this->status;
     }
 
     /**
@@ -303,6 +662,8 @@ class Postcode
         return $this->district;
     }
 
+    // Constructor
+
     /**
      * Protected as for internal use only. Update this by using loadPostcode()
      *
@@ -318,6 +679,8 @@ class Postcode
 
         return $this;
     }
+
+    // General methods
 
     /**
      * @return null|string
@@ -438,479 +801,5 @@ class Postcode
 
         return $this;
     }
-
-    /**
-     * @return string
-     */
-    public function getPostcodeRegex(): string
-    {
-        return $this->postcode_regex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getAreaRegex(): ?string
-    {
-        return $this->area_regex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getDistrictRegex(): string
-    {
-        return $this->district_regex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getOutwardCodeRegex(): string
-    {
-        return $this->outward_code_regex;
-    }
-
-    /**
-     * @return string
-     */
-    protected function getSectorRegex(): string
-    {
-        return $this->sector_regex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getUnitRegex(): string
-    {
-        return $this->unit_regex;
-    }
-
-    /**
-     * @return string
-     */
-    public function getInwardCodeRegex(): string
-    {
-        return $this->inward_code_regex;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getRegion(): ?string
-    {
-        return $this->region;
-    }
-
-    /**
-     * Protected as for internal use only. Update this by using postcodeLookup()
-     *
-     * @see Postcode::postcodeLookup()
-     *
-     * @param null|string $region
-     *
-     * @return Postcode
-     */
-    protected function setRegion(?string $region): Postcode
-    {
-        $this->region = $region;
-
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getCountry(): ?string
-    {
-        return $this->country;
-    }
-
-    /**
-     * Protected as for internal use only. Update this by using postcodeLookup()
-     *
-     * @see Postcode::postcodeLookup()
-     *
-     * @param null|string $country
-     *
-     * @return Postcode
-     */
-    public function setCountry(?string $country): Postcode
-    {
-        $this->country = $country;
-
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getHpiRegion(): ?string
-    {
-        return $this->hpi_region;
-    }
-
-    /**
-     * Protected as for internal use only. Update this by using postcodeLookup()
-     *
-     * @see Postcode::postcodeLookup()
-     *
-     * @param null|string $hpi_region
-     *
-     * @return Postcode
-     */
-    public function setHpiRegion(?string $hpi_region): Postcode
-    {
-        $this->hpi_region = $hpi_region;
-
-        return $this;
-    }
-
-    /**
-     * @return null|string
-     */
-    public function getItvRegion(): ?string
-    {
-        return $this->itv_region;
-    }
-
-    /**
-     * Protected as for internal use only. Update this by using postcodeLookup()
-     *
-     * @see Postcode::postcodeLookup()
-     *
-     * @param null|string $itv_region
-     *
-     * @return Postcode
-     */
-    public function setItvRegion(?string $itv_region): Postcode
-    {
-        $this->itv_region = $itv_region;
-
-        return $this;
-    }
-
-    // Constructor
-
-    /**
-     * Load as much as possible for quick instantiation within code:
-     *
-     * If only a postcode is included, it will be parsed.
-     *
-     * @param null|string $postcode
-     * @param null|Connection $connection a DBAL connection
-     */
-    public function __construct(
-        ?string $postcode = null,
-        ?Capsule $connection = null
-    ) {
-
-        if ($postcode) {
-            // automatically load the postcode
-            $this->loadPostcode($postcode);
-        }
-
-        if ($connection) {
-            $this->setConnection($connection->getConnection());
-        }
-
-        if ($this->checkConnection() && $this->getPostcode()) {
-            // automatically load the postcode
-            $this->postcodeLookup();
-        }
-
-    }
-
-    // General methods
-
-    /**
-     * Validates a postcode: returns the postcode if valid, false otherwise.
-     *
-     * @param string $postcode
-     *
-     * @return null|string
-     */
-    public function validatePostcode(string $postcode): ?string
-    {
-        $matches = [];
-        preg_match($this->getPostcodeRegex(), $postcode, $matches);
-
-        if (count($matches)) {
-            return $matches[0];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates an area: returns the area if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return an area
-     *
-     * @param string $area
-     *
-     * @return null|string
-     */
-    public function validateArea(string $area): ?string
-    {
-        $matches = [];
-        preg_match($this->getAreaRegex(), $area, $matches);
-
-        if (count($matches)) {
-            return $matches[0];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates a district: returns the district if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return a district
-     *
-     * @param string $district
-     *
-     * @return null|string
-     */
-    public function validateDistrict(string $district): ?string
-    {
-        $matches = [];
-        preg_match($this->getDistrictRegex(), $district, $matches);
-
-        if (count($matches)) {
-            return $matches[0];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates an outward_code: returns the outward_code if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return an outward_code
-     *
-     * @param string $outward_code
-     *
-     * @return null|string
-     */
-    public function validateOutwardCode(string $outward_code): ?string
-    {
-        $matches = [];
-        preg_match($this->getOutwardCodeRegex(), $outward_code, $matches);
-
-        if (count($matches)) {
-            return $matches[0];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates a sector: returns the sector if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return a sector
-     *
-     * @param string $sector
-     *
-     * @return null|string
-     */
-    public function validateSector(string $sector): ?string
-    {
-        $matches = [];
-        preg_match($this->getSectorRegex(), $sector, $matches);
-
-        if (count($matches)) {
-            return $matches[1];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates a unit: returns the unit if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return a unit
-     *
-     * @param string $unit
-     *
-     * @return null|string
-     */
-    public function validateUnit(string $unit): ?string
-    {
-        $matches = [];
-        preg_match($this->getUnitRegex(), $unit, $matches);
-
-        if (count($matches)) {
-            return $matches[1];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * Validates an inward_code: returns the inward_code if valid, false otherwise.
-     * This also strips the string: so using a full postcode will only return an inward_code
-     *
-     * @param string $inward_code
-     *
-     * @return null|string
-     */
-    public function validateInwardCode(string $inward_code): ?string
-    {
-        $matches = [];
-        preg_match($this->getInwardCodeRegex(), $inward_code, $matches);
-
-        if (count($matches)) {
-            return $matches[1];
-        } else {
-            return null;
-        }
-    }
-
-    /**
-     * This takes a string and fully parses it into the system.
-     * This is the public method, other is protected to ensure parsing is done properly.
-     *
-     * @see Postcode::setPostcode()
-     *
-     * @param string $postcode
-     *
-     * @return null|string
-     */
-    public function loadPostcode(string $postcode): ?string
-    {
-        $postcode = $this->validatePostcode($postcode);
-
-        if ($postcode) {
-            // load it in as expected
-            $this->setPostcode($postcode)
-                 ->setArea($this->validateArea($postcode))
-                 ->setDistrict($this->validateDistrict($postcode))
-                 ->setOutwardCode($this->validateOutwardCode($postcode))
-                 ->setSector($this->validateSector($postcode))
-                 ->setUnit($this->validateUnit($postcode))
-                 ->setInwardCode($this->validateInwardCode($postcode));
-
-            $this->status['postcode_load'] = 'Postcode loaded successfully';
-
-            return $postcode;
-        } else {
-            // clear the object to stop any residual data
-            $this->setPostcode($postcode)
-                 ->setArea(null)
-                 ->setDistrict(null)
-                 ->setOutwardCode(null)
-                 ->setSector(null)
-                 ->setUnit(null)
-                 ->setInwardCode(null);
-
-            $this->status['postcode_load'] = 'Postcode validation failed';
-
-            return null;
-        }
-    }
-
-    /**
-     * Checks that the current connection is as expected
-     *
-     * @return bool
-     */
-    public function checkConnection(): bool
-    {
-        if ($this->getConnection() && $this->getConnection()->getDoctrineConnection()->isConnected()) {
-            // connection is active
-            $this->status['db_connection'] = 'Database connection active, database not checked';
-
-            $schemaManager = $this->getConnection()->getDoctrineConnection()->getSchemaManager();
-            if (
-                $schemaManager->tablesExist(['postcode_nspls']) == true
-            ) {
-                $this->status['db_connection'] = 'Database connection active, tables confirmed';
-            }
-
-            return true;
-
-        } else {
-            $this->status['db_connection'] = 'Database connection failed';
-            return false;
-        }
-    }
-
-    /**
-     * Uses the specified connection and attempts to populate the remaining data from the database.
-     *
-     * @todo add failsafes if the table doesn't exist
-     *
-     * @return bool
-     */
-    public function postcodeLookup(): bool
-    {
-
-        if ($this->checkConnection()) {
-
-            // Load the postcode and set all the values
-            // Note we will translate the relevant ones (by joining to other tables)
-            $results = $this->getConnection()->table('postcode_nspls')
-
-                ->select(
-                    'postcode_nspls.*',
-                    'postcode_usertypes.usertype as usertype_verbose',
-                    'postcode_osgrdinds.osgrdind as osgrdind_verbose',
-                    'postcode_ceds.ced17nm as ced17nm',
-                    'postcode_lauas.lad16nm as lad16nm',
-                    'postcode_wards.wd17nm as wd17nm',
-                    'postcode_nhsers.nhser17nm as nhser17nm'
-                )
-
-                ->leftJoin('postcode_usertypes', 'postcode_usertypes.usertype', '=', 'postcode_usertypes.id')
-                ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
-                ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
-                ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
-                ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
-                ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
-
-                //        left join postcode_countries on postcode_nspls.ctry = postcode_countries.ctry12cd
-                //       left join postcode_rgns on postcode_nspls.rgn = postcode_rgns.gor10cd
-                //       left join postcode_pcons on postcode_nspls.pcon = postcode_pcons.pcon14cd
-                //       left join postcode_eers on postcode_nspls.eer = postcode_rgns.gor10cd
-                //       left join postcode_teclecs on postcode_nspls.teclec = postcode_teclecs.tecleccd
-                //       left join postcode_ttwas on postcode_nspls.ttwa = postcode_ttwas.ttwa11cd
-                //       left join postcode_nutss on postcode_nspls.nuts = postcode_nutss.lau216cd
-                //       left join postcode_parks on postcode_nspls.park = postcode_parks.npark16cd
-                //       left join postcode_ccgs on postcode_nspls.ccg = postcode_ccgs.ccg18cd
-                //       left join postcode_bua11s on postcode_nspls.bua11 = postcode_bua11s.bua13cd
-                //       left join postcode_buasd11s on postcode_nspls.buasd11 = postcode_buasd11s.buasd13cd
-                //       left join postcode_ru11inds on postcode_nspls.ru11ind = postcode_ru11inds.ru11ind
-                //       left join postcode_oac11s on postcode_nspls.oac11 = postcode_oac11s.oac11
-                //       left join postcode_leps as leps1 on postcode_nspls.lep1 = leps1.lep17cd
-                //       left join postcode_leps as leps2 on postcode_nspls.lep2 = leps2.lep17cd
-                //       left join postcode_pfas on postcode_nspls.pfa = postcode_pfas.pfa15cd
-
-                ->where('pcd', '=', $this->getPostcode())
-                ->orWhere('pcd2', '=', $this->getPostcode())
-                ->first();
-
-            if(!$results) {
-                $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
-            } else {
-                $this->status['postcode_lookup'] = 'The postcode was found';
-
-                // Manually set the properties
-                foreach($results as $key => $value) {
-                    $this->$key = $value;
-                }
-                echo $results->usertype_verbose;
-            }
-
-        } else {
-
-            $this->setLaua(null)
-                 ->setRegion(null)
-                 ->setCountry(null)
-                 ->setHpiRegion(null)
-                 ->setItvRegion(null);
-
-            $this->status['postcode_lookup'] = 'Postcode lookup failed';
-        }
-
-        return false;
-    }
-
 
 }
