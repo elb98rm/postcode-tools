@@ -49,35 +49,35 @@ class DevelopmentSetup implements SetupInterface
      */
     public function setupAll(): bool
     {
-        //$this->createPostcodeNspls();
-        //$this->createUsertypes();
-        //$this->createOsgrdinds();
+        $this->createPostcodeNspls();
+        $this->createUsertypes();
+        $this->createOsgrdinds();
             //$this->createOa11();
-        //$this->createCounties();
-        //$this->createCeds();
-        //$this->createLauas();
-        //$this->createWards();
-        //$this->createHlthaus();
-        //$this->createNhsers();
+        $this->createCounties();
+        $this->createCeds();
+        $this->createLauas();
+        $this->createWards();
+        $this->createHlthaus();
+        $this->createNhsers();
         $this->createCountries();
-        //$this->createRgns();
-        //$this->createPcons();
-        //$this->createEers();
-        //$this->createTeclecs();
-        //$this->createTtwas();
-        //$this->createPcts();
-        //$this->createNutss();
-        //$this->createParks();
-        //$this->createLsoa11s();
-            //$this->createWz11s();
-        //$this->createCcgs();
-        //$this->createBua11s();
-        //$this->createBuasd11();
-        //$this->createRu11ind();
-        //$this->createOac11();
-        //$this->createLeps();
-        //$this->createPfas();
-        //$this->createImds();
+        $this->createRgns();
+        $this->createPcons();
+        $this->createEers();
+        $this->createTeclecs();
+        $this->createTtwas();
+        $this->createPcts();
+        $this->createNutss();
+        $this->createParks();
+        $this->createLsoa11s();
+           //$this->createWz11s();
+        $this->createCcgs();
+        $this->createBua11s();
+        $this->createBuasd11();
+        $this->createRu11ind();
+        $this->createOac11();
+        $this->createLeps();
+        $this->createPfas();
+        $this->createImds();
 
         return true;
     }

@@ -21,6 +21,10 @@ if (!$postcode->getConnection()) {
     echo "\nThe database is connected. Here are some example properties:";
     echo "\nUsertype: " . $postcode->getUsertypeVerbose() . '(' . $postcode->getUsertype() . ')';
     echo "\nGrid reference positional quality indicator: " . $postcode->getOsgrdindVerbose() . '(' . $postcode->getOsgrdind() . ')';
+    echo "\nCED: " . $postcode->getCed17nm() . '(' . $postcode->getCed() . ')';
+    echo "\nLaua: " . $postcode->getLad17nm() . '(' . $postcode->getLaua() . ')';
+    echo "\nWard: " . $postcode->getWd17nm() . '(' . $postcode->getWard() . ')';
+    echo "\nNHS Region: " . $postcode->getNhser17nm() . '(' . $postcode->getNhser() . ')';
     echo "\nLat: " . $postcode->getLat();
     echo "\nCountry Code: " . $postcode->getCtry();
 }

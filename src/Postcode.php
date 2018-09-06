@@ -851,13 +851,36 @@ class Postcode
                 ->select(
                     'postcode_nspls.*',
                     'postcode_usertypes.usertype as usertype_verbose',
-                    'postcode_osgrdinds.osgrdind as osgrdind_verbose'
+                    'postcode_osgrdinds.osgrdind as osgrdind_verbose',
+                    'postcode_ceds.ced17nm as ced17nm',
+                    'postcode_lauas.lad16nm as lad16nm',
+                    'postcode_wards.wd17nm as wd17nm',
+                    'postcode_nhsers.nhser17nm as nhser17nm'
                 )
 
                 ->leftJoin('postcode_usertypes', 'postcode_usertypes.usertype', '=', 'postcode_usertypes.id')
                 ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
+                ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
+                ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
+                ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
+                ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
 
-                //left join postcode_osgrdinds on postcode_nspls.osgrdind = postcode_osgrdinds.id
+                //        left join postcode_countries on postcode_nspls.ctry = postcode_countries.ctry12cd
+                //       left join postcode_rgns on postcode_nspls.rgn = postcode_rgns.gor10cd
+                //       left join postcode_pcons on postcode_nspls.pcon = postcode_pcons.pcon14cd
+                //       left join postcode_eers on postcode_nspls.eer = postcode_rgns.gor10cd
+                //       left join postcode_teclecs on postcode_nspls.teclec = postcode_teclecs.tecleccd
+                //       left join postcode_ttwas on postcode_nspls.ttwa = postcode_ttwas.ttwa11cd
+                //       left join postcode_nutss on postcode_nspls.nuts = postcode_nutss.lau216cd
+                //       left join postcode_parks on postcode_nspls.park = postcode_parks.npark16cd
+                //       left join postcode_ccgs on postcode_nspls.ccg = postcode_ccgs.ccg18cd
+                //       left join postcode_bua11s on postcode_nspls.bua11 = postcode_bua11s.bua13cd
+                //       left join postcode_buasd11s on postcode_nspls.buasd11 = postcode_buasd11s.buasd13cd
+                //       left join postcode_ru11inds on postcode_nspls.ru11ind = postcode_ru11inds.ru11ind
+                //       left join postcode_oac11s on postcode_nspls.oac11 = postcode_oac11s.oac11
+                //       left join postcode_leps as leps1 on postcode_nspls.lep1 = leps1.lep17cd
+                //       left join postcode_leps as leps2 on postcode_nspls.lep2 = leps2.lep17cd
+                //       left join postcode_pfas on postcode_nspls.pfa = postcode_pfas.pfa15cd
 
                 ->where('pcd', '=', $this->getPostcode())
                 ->orWhere('pcd2', '=', $this->getPostcode())
