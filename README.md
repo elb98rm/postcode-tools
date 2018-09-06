@@ -6,3 +6,6 @@ This is a set of tools for getting relevant data from UK postcodes.
 
 To be completed
 
+## Installation
+ 
+

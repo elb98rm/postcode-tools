@@ -42,6 +42,7 @@ use Illuminate\Database\Connection;
 class Postcode
 {
     use NSPLTrait;
+    use NSPLRelationsTrait;
 
     // Properties
 
@@ -612,8 +613,6 @@ class Postcode
 
         if ($connection) {
             $this->setConnection($connection->getConnection());
-
-            var_dump($this->checkConnection(), $this->getPostcode());
         }
 
         if ($this->checkConnection() && $this->getPostcode()) {
@@ -836,6 +835,8 @@ class Postcode
     /**
      * Uses the specified connection and attempts to populate the remaining data from the database.
      *
+     * @todo add failsafes if the table doesn't exist
+     *
      * @return bool
      */
     public function postcodeLookup(): bool
@@ -846,6 +847,18 @@ class Postcode
             // Load the postcode and set all the values
             // Note we will translate the relevant ones (by joining to other tables)
             $results = $this->getConnection()->table('postcode_nspls')
+
+                ->select(
+                    'postcode_nspls.*',
+                    'postcode_usertypes.usertype as usertype_verbose',
+                    'postcode_osgrdinds.osgrdind as osgrdind_verbose'
+                )
+
+                ->leftJoin('postcode_usertypes', 'postcode_usertypes.usertype', '=', 'postcode_usertypes.id')
+                ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
+
+                //left join postcode_osgrdinds on postcode_nspls.osgrdind = postcode_osgrdinds.id
+
                 ->where('pcd', '=', $this->getPostcode())
                 ->orWhere('pcd2', '=', $this->getPostcode())
                 ->first();
@@ -859,7 +872,7 @@ class Postcode
                 foreach($results as $key => $value) {
                     $this->$key = $value;
                 }
-
+                echo $results->usertype_verbose;
             }
 
         } else {

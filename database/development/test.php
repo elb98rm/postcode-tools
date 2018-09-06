@@ -19,7 +19,8 @@ if (!$postcode->getConnection()) {
     echo "\nThe database is not connected.";
 } else {
     echo "\nThe database is connected. Here are some example properties:";
-    echo "\nUsertype: " . $postcode->getUsertype();
+    echo "\nUsertype: " . $postcode->getUsertypeVerbose() . '(' . $postcode->getUsertype() . ')';
+    echo "\nGrid reference positional quality indicator: " . $postcode->getOsgrdindVerbose() . '(' . $postcode->getOsgrdind() . ')';
     echo "\nLat: " . $postcode->getLat();
     echo "\nCountry Code: " . $postcode->getCtry();
 }

@@ -80,7 +80,7 @@ trait NSPLTrait
     protected $doterm;
 
     /**
-     * Postcode user
+     * Postcode usertype
      *
      * @see ../docs/main/nspl_properties.md
      * @var bool $usertype
