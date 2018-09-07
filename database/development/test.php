@@ -11,7 +11,7 @@ require "bootstrap.php";
 
 echo '*** Starting basic php test ***';
 
-$postcode = new Postcode('EC1A 1BB', $capsule);
+$postcode = new Postcode('EC1A 1BB', $capsule,true);
 
 echo "\nThe postcode " . $postcode->getPostcode() . ' has been loaded.';
 
@@ -28,4 +28,6 @@ if (!$postcode->getConnection()) {
     echo "\nOAC: " . $postcode->getOac11() . '(' . $postcode->getOac11Supergroup() . ', ' . $postcode->getOac11Group() . ', ' . $postcode->getOac11Subgroup() . ')';
     echo "\nLat: " . $postcode->getLat();
     echo "\nCountry: " . $postcode->getCtry12nm() . '(' . $postcode->getCtry() . ')';
+    echo "\nVar dump of the status:\n";
+    var_dump($postcode->getStatus());
 }

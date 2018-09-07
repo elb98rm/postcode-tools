@@ -22,6 +22,7 @@ namespace Floor9design\PostcodeTools;
 
 use Illuminate\Database\Capsule\Manager as Capsule;
 use Illuminate\Database\Connection;
+use phpDocumentor\Parser\Exception;
 
 /**
  * Class Postcode
@@ -54,8 +55,14 @@ class Postcode
     protected $status = [
         'postcode_load' => 'Not attempted',
         'db_connection' => 'Not attempted',
-        'postcode_lookup' => 'Not attempted'
+        'postcode_lookup' => 'Not attempted',
+        'errors' => []
     ];
+
+    /**
+     * @var Capsule $capsule Symfony DBAL capsule.
+     */
+    protected $capsule;
 
     /**
      * @var Connection $connection Injected Symfony DBAL connection.
@@ -203,11 +210,13 @@ class Postcode
      * If only a postcode is included, it will be parsed.
      *
      * @param null|string $postcode
-     * @param null|Connection $connection a DBAL connection
+     * @param Capsule|null $capsule An encapsulated DBAL connection
+     * @param boolean $full_load False only loads basic data, true also loads child data (with multiple DB joins)
      */
     public function __construct(
         ?string $postcode = null,
-        ?Capsule $connection = null
+        ?Capsule $capsule = null,
+        Bool $full_load = false
     ) {
 
         if ($postcode) {
@@ -215,13 +224,14 @@ class Postcode
             $this->loadPostcode($postcode);
         }
 
-        if ($connection) {
-            $this->setConnection($connection->getConnection());
+        if ($capsule) {
+            $this->setCapsule($capsule);
+            $this->setConnection($capsule->getConnection());
         }
 
         if ($this->checkConnection() && $this->getPostcode()) {
             // automatically load the postcode
-            $this->postcodeLookup();
+            $this->postcodeLookup($full_load);
         }
 
     }
@@ -401,14 +411,6 @@ class Postcode
     }
 
     /**
-     * @return string
-     */
-    protected function getSectorRegex(): string
-    {
-        return $this->sector_regex;
-    }
-
-    /**
      * Validates a unit: returns the unit if valid, false otherwise.
      * This also strips the string: so using a full postcode will only return a unit
      *
@@ -475,13 +477,6 @@ class Postcode
             // connection is active
             $this->status['db_connection'] = 'Database connection active, database not checked';
 
-            $schemaManager = $this->getConnection()->getDoctrineConnection()->getSchemaManager();
-            if (
-                $schemaManager->tablesExist(['postcode_nspls']) == true
-            ) {
-                $this->status['db_connection'] = 'Database connection active, tables confirmed';
-            }
-
             return true;
 
         } else {
@@ -537,89 +532,25 @@ class Postcode
     }
 
     /**
-     * Uses the specified connection and attempts to populate the remaining data from the database.
-     *
-     * @todo add failsafes if the table doesn't exist
-     *
-     * @return bool
+     * @return null|Capsule
      */
-    public function postcodeLookup(): bool
+    public function getCapsule(): ?Capsule
     {
+        return $this->capsule;
+    }
 
-        if ($this->checkConnection()) {
+    /**
+     * @param null|Capsule $capsule
+     *
+     * @see Capsule
+     *
+     * @return Postcode
+     */
+    public function setCapsule(?Capsule $capsule): Postcode
+    {
+        $this->capsule = $capsule;
 
-            // Load the postcode and set all the values
-            // Note we will translate the relevant ones (by joining to other tables)
-            $results = $this->getConnection()->table('postcode_nspls')
-                ->select(
-                    'postcode_nspls.*',
-                    'postcode_usertypes.usertype as usertype_verbose',
-                    'postcode_osgrdinds.osgrdind as osgrdind_verbose',
-                    'postcode_ceds.ced17nm as ced17nm',
-                    'postcode_lauas.lad16nm as lad16nm',
-                    'postcode_wards.wd17nm as wd17nm',
-                    'postcode_nhsers.nhser17nm as nhser17nm',
-                    'postcode_countries.ctry12nm as ctry12nm',
-                    'postcode_rgns.gor10nm as rgn_gor10nm',
-                    'postcode_pcons.pcon14cd as pcon14nm',
-                    'postcode_eers.eer10nm as eer10nm',
-                    'postcode_teclecs.teclecnm as teclecnm',
-                    'postcode_ttwas.ttwa11nm as ttwa11nm',
-                    'postcode_ttwas.ttwa11nm as ttwa11nm',
-                    'postcode_nutss.lau216cd as lau216nm',
-                    'postcode_ccgs.ccg18nm as ccg18nm',
-                    'postcode_bua11s.bua13nm as bua13nm',
-                    'postcode_ru11inds.ru11nm as ru11nm',
-                    'postcode_oac11s.supergroup as oac11_supergroup',
-                    'postcode_oac11s.group as oac11_group',
-                    'postcode_oac11s.subgroup as oac11_subgroup',
-                    'leps1.lep17nm as leps1_lep17nm',
-                    'leps2.lep17nm as leps2_lep17nm',
-                    'postcode_pfas.pfa15nm'
-                )
-                ->leftJoin('postcode_usertypes', 'postcode_nspls.usertype', '=', 'postcode_usertypes.id')
-                ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
-                ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
-                ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
-                ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
-                ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
-                ->leftJoin('postcode_countries', 'postcode_nspls.ctry', '=', 'postcode_countries.ctry12cd')
-                ->leftJoin('postcode_rgns', 'postcode_nspls.rgn', '=', 'postcode_rgns.gor10cd')
-                ->leftJoin('postcode_pcons', 'postcode_nspls.pcon', '=', 'postcode_pcons.pcon14cd')
-                ->leftJoin('postcode_eers', 'postcode_nspls.eer', '=', 'postcode_eers.eer10cd')
-                ->leftJoin('postcode_teclecs', 'postcode_nspls.teclec', '=', 'postcode_teclecs.tecleccd')
-                ->leftJoin('postcode_ttwas', 'postcode_nspls.ttwa', '=', 'postcode_ttwas.ttwa11cd')
-                ->leftJoin('postcode_nutss', 'postcode_nspls.nuts', '=', 'postcode_nutss.lau216cd')
-                ->leftJoin('postcode_parks', 'postcode_nspls.park', '=', 'postcode_parks.npark16cd')
-                ->leftJoin('postcode_ccgs', 'postcode_nspls.ccg', '=', 'postcode_ccgs.ccg18cd')
-                ->leftJoin('postcode_bua11s', 'postcode_nspls.bua11', '=', 'postcode_bua11s.bua13cd')
-                ->leftJoin('postcode_ru11inds', 'postcode_nspls.ru11ind', '=', 'postcode_ru11inds.ru11ind')
-                ->leftJoin('postcode_oac11s', 'postcode_nspls.oac11', '=', 'postcode_oac11s.oac11')
-                ->leftJoin('postcode_leps as leps1', 'postcode_nspls.lep1', '=', 'leps1.lep17cd')
-                ->leftJoin('postcode_leps as leps2', 'postcode_nspls.lep2', '=', 'leps2.lep17cd')
-                ->leftJoin('postcode_pfas', 'postcode_nspls.pfa', '=', 'postcode_pfas.pfa15cd')
-                ->where('pcd', '=', $this->getPostcode())
-                ->orWhere('pcd2', '=', $this->getPostcode())
-                ->first();
-
-            if (!$results) {
-                $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
-            } else {
-                $this->status['postcode_lookup'] = 'The postcode was found';
-
-                // Manually set the properties
-                foreach ($results as $key => $value) {
-                    $this->$key = $value;
-                }
-                echo $results->usertype_verbose;
-            }
-
-        } else {
-
-            $this->status['postcode_lookup'] = 'Postcode lookup failed';
-        }
-
-        return false;
+        return $this;
     }
 
     /**
@@ -801,5 +732,142 @@ class Postcode
 
         return $this;
     }
+
+    /**
+     * @return string
+     */
+    protected function getSectorRegex(): string
+    {
+        return $this->sector_regex;
+    }
+
+    /**
+     * Uses the specified connection and attempts to populate the remaining data from the database.
+     *
+     * @todo add failsafes if the table doesn't exist
+     *
+     * @param $full_load
+     * @return bool
+     */
+    protected function postcodeLookup($full_load): bool
+    {
+        if ($this->checkConnection()) {
+
+            $results = null;
+
+            if ($full_load) {
+                try {
+                    // check that one of the child tables is available
+                    if ($this->tableExists('postcode_nspls') && $this->tableExists('postcode_ceds')) {
+                        // Load the postcode and set all the values including children
+                        $results = $this->getConnection()->table('postcode_nspls')
+                            ->select(
+                                'postcode_nspls.*',
+                                'postcode_usertypes.usertype as usertype_verbose',
+                                'postcode_osgrdinds.osgrdind as osgrdind_verbose',
+                                'postcode_ceds.ced17nm as ced17nm',
+                                'postcode_lauas.lad16nm as lad16nm',
+                                'postcode_wards.wd17nm as wd17nm',
+                                'postcode_nhsers.nhser17nm as nhser17nm',
+                                'postcode_countries.ctry12nm as ctry12nm',
+                                'postcode_rgns.gor10nm as rgn_gor10nm',
+                                'postcode_pcons.pcon14cd as pcon14nm',
+                                'postcode_eers.eer10nm as eer10nm',
+                                'postcode_teclecs.teclecnm as teclecnm',
+                                'postcode_ttwas.ttwa11nm as ttwa11nm',
+                                'postcode_ttwas.ttwa11nm as ttwa11nm',
+                                'postcode_nutss.lau216cd as lau216nm',
+                                'postcode_ccgs.ccg18nm as ccg18nm',
+                                'postcode_bua11s.bua13nm as bua13nm',
+                                'postcode_ru11inds.ru11nm as ru11nm',
+                                'postcode_oac11s.supergroup as oac11_supergroup',
+                                'postcode_oac11s.group as oac11_group',
+                                'postcode_oac11s.subgroup as oac11_subgroup',
+                                'leps1.lep17nm as leps1_lep17nm',
+                                'leps2.lep17nm as leps2_lep17nm',
+                                'postcode_pfas.pfa15nm'
+                            )
+                            ->leftJoin('postcode_usertypes', 'postcode_nspls.usertype', '=', 'postcode_usertypes.id')
+                            ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
+                            ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
+                            ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
+                            ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
+                            ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
+                            ->leftJoin('postcode_countries', 'postcode_nspls.ctry', '=', 'postcode_countries.ctry12cd')
+                            ->leftJoin('postcode_rgns', 'postcode_nspls.rgn', '=', 'postcode_rgns.gor10cd')
+                            ->leftJoin('postcode_pcons', 'postcode_nspls.pcon', '=', 'postcode_pcons.pcon14cd')
+                            ->leftJoin('postcode_eers', 'postcode_nspls.eer', '=', 'postcode_eers.eer10cd')
+                            ->leftJoin('postcode_teclecs', 'postcode_nspls.teclec', '=', 'postcode_teclecs.tecleccd')
+                            ->leftJoin('postcode_ttwas', 'postcode_nspls.ttwa', '=', 'postcode_ttwas.ttwa11cd')
+                            ->leftJoin('postcode_nutss', 'postcode_nspls.nuts', '=', 'postcode_nutss.lau216cd')
+                            ->leftJoin('postcode_parks', 'postcode_nspls.park', '=', 'postcode_parks.npark16cd')
+                            ->leftJoin('postcode_ccgs', 'postcode_nspls.ccg', '=', 'postcode_ccgs.ccg18cd')
+                            ->leftJoin('postcode_bua11s', 'postcode_nspls.bua11', '=', 'postcode_bua11s.bua13cd')
+                            ->leftJoin('postcode_ru11inds', 'postcode_nspls.ru11ind', '=', 'postcode_ru11inds.ru11ind')
+                            ->leftJoin('postcode_oac11s', 'postcode_nspls.oac11', '=', 'postcode_oac11s.oac11')
+                            ->leftJoin('postcode_leps as leps1', 'postcode_nspls.lep1', '=', 'leps1.lep17cd')
+                            ->leftJoin('postcode_leps as leps2', 'postcode_nspls.lep2', '=', 'leps2.lep17cd')
+                            ->leftJoin('postcode_pfas', 'postcode_nspls.pfa', '=', 'postcode_pfas.pfa15cd')
+                            ->where('pcd', '=', $this->getPostcode())
+                            ->orWhere('pcd2', '=', $this->getPostcode())
+                            ->first();
+                    } else {
+                        throw new Exception("Some of the postcode tables do not exist. It's likely that these haven't been set up.");
+                    }
+                } catch (Exception $e) {
+                    $this->status['errors'][] = $e->getMessage();
+                }
+            } else {
+                try {
+                    if ($this->tableExists('postcode_nspls')) {
+                        // Load the postcode and set all the values
+                        $results = $this->getConnection()->table('postcode_nspls')
+                            ->select(
+                                'postcode_nspls.*'
+                            )
+                            ->where('pcd', '=', $this->getPostcode())
+                            ->orWhere('pcd2', '=', $this->getPostcode())
+                            ->first();
+                    } else {
+                        throw new Exception("The postcode_nspls table does not exist. It's likely that this hasn't been set up.");
+                    }
+                } catch (Exception $e) {
+                    $this->status['errors'][] = $e->getMessage();
+                }
+            }
+
+            if (!$results) {
+                $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
+            } else {
+                $this->status['postcode_lookup'] = 'The postcode was found';
+
+                // Manually set the properties
+                foreach ($results as $key => $value) {
+                    $this->$key = $value;
+                }
+            }
+
+        } else {
+            $this->status['postcode_lookup'] = 'Postcode lookup failed';
+        }
+
+        return false;
+    }
+
+    /**
+     * Returns true if the specified table exists in the database.
+     *
+     * @param $table
+     *
+     * @return bool
+     */
+    protected function tableExists($table): bool
+    {
+        if ($this->getCapsule()->schema()->hasTable($table)) {
+            return true;
+        }
+        return false;
+    }
+
 
 }
