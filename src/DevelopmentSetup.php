@@ -182,7 +182,7 @@ class DevelopmentSetup implements SetupInterface
 
         // set up the database
         Capsule::schema()->create('postcode_usertypes', function (Blueprint $table) {
-            $table->integer('id');
+            $table->boolean('id');
             $table->string('usertype');
         });
 

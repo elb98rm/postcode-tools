@@ -577,7 +577,7 @@ class Postcode
                     'leps2.lep17nm as leps2_lep17nm',
                     'postcode_pfas.pfa15nm'
                 )
-                ->leftJoin('postcode_usertypes', 'postcode_usertypes.usertype', '=', 'postcode_usertypes.id')
+                ->leftJoin('postcode_usertypes', 'postcode_nspls.usertype', '=', 'postcode_usertypes.id')
                 ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
                 ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
                 ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
