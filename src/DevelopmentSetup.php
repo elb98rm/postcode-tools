@@ -52,7 +52,7 @@ class DevelopmentSetup implements SetupInterface
         $this->createPostcodeNspls();
         $this->createUsertypes();
         $this->createOsgrdinds();
-        $this->createOa11();
+        $this->createOal1s();
         $this->createCounties();
         $this->createCeds();
         $this->createLauas();
