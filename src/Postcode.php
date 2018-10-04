@@ -593,8 +593,6 @@ class Postcode
         return $this->district;
     }
 
-    // Constructor
-
     /**
      * Protected as for internal use only. Update this by using loadPostcode()
      *
@@ -868,6 +866,5 @@ class Postcode
         }
         return false;
     }
-
 
 }

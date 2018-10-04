@@ -6,13 +6,22 @@ namespace Floor9design\DatabaseTools;
 
 use Floor9design\PostcodeTools\Postcode;
 use Floor9design\PostcodeTools\PostcodeDistanceCalculator;
+use Floor9design\PostcodeTools\PostcodeExporter;
 
 $capsule = null;
 require "bootstrap.php";
 
 echo '*** Starting basic php test ***';
 
-//$postcode = new Postcode('EC1A 1BB', $capsule,true);
+$postcodes = ['EC1A 1BB','PE8 4JD'];
+
+$postcode_exporter = new PostcodeExporter();
+
+$valid_postcodes = $postcode_exporter->validateMultiplePostcodes($postcodes, $capsule, true);
+
+$postcode_exporter->exportPostcodesToCsv($valid_postcodes, 'text_output.csv', true);
+
+$postcode = new Postcode('EC1A 1BB', $capsule,true);
 $postcode = new Postcode('PE8 4JD', $capsule,true);
 echo "\nThe postcode " . $postcode->getPostcode() . ' has been loaded.';
 
