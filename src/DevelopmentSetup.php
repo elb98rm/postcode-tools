@@ -78,6 +78,7 @@ class DevelopmentSetup implements SetupInterface
         $this->createLeps();
         $this->createPfas();
         $this->createImds();
+        $this->createTvRegion();
 
         return true;
     }
@@ -95,8 +96,8 @@ class DevelopmentSetup implements SetupInterface
         // set up the database
         Capsule::schema()->create('postcode_nspls', function (Blueprint $table) {
             $table->string('pcd', 8)->primary();
-            $table->string('pcd2', 8);
-            $table->string('pcds', 8);
+            $table->string('pcd2', 8)->index();
+            $table->string('pcds', 8)->index();
             $table->string('dointr', 6);
             $table->string('doterm', 6)->nullable();
             $table->boolean('usertype')->nullable();
@@ -127,8 +128,8 @@ class DevelopmentSetup implements SetupInterface
             $table->string('buasd11')->nullable();
             $table->string('ru11ind')->nullable();
             $table->string('oac11')->nullable();
-            $table->float('lat');
-            $table->float('long');
+            $table->float('lat', 10, 7);
+            $table->float('long', 10, 7);
             $table->string('lep1')->nullable();
             $table->string('lep2')->nullable();
             $table->string('pfa')->nullable();
@@ -1555,5 +1556,45 @@ class DevelopmentSetup implements SetupInterface
         }
     }
 
+    /**
+     * Sets up and populates the postcode_tv_regions table
+     *
+     * @return bool
+     */
+    public function createTvRegion(): bool
+    {
+        // drop pre-existing setups
+        Capsule::schema()->dropIfExists('postcode_tv_regions');
+
+        // set up the database
+        Capsule::schema()->create('postcode_tv_regions', function (Blueprint $table) {
+            $table->string('district')->primary();
+            $table->string('tv_region');
+        });
+
+        if (($handle = fopen('../source/postcode_tv_regions.csv', 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+
+                // skip the headers:
+                if ($data[0] != "pdistrict" && $data[1] != "TV_REGION") {
+
+                    // No need to import such a simple table:
+                    DB::table('postcode_tv_regions')->insert(
+                        [
+                            'district' => $data[0],
+                            'tv_region' => $data[1]
+                        ]
+                    );
+                }
+            }
+            fclose($handle);
+        }
+
+        if (Capsule::schema()->hasTable('postcode_tv_regions')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
 
 }

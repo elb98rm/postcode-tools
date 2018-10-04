@@ -373,6 +373,14 @@ trait NSPLTrait
      */
     protected $stp;
 
+    /**
+     * tv_region
+     *
+     * @see ../docs/main/usage.md
+     * @var string $tv_region
+     */
+    protected $tv_region;
+
     // Accessors
 
     /**
@@ -701,6 +709,45 @@ trait NSPLTrait
     public function getStp(): ?string
     {
         return $this->stp;
+    }
+
+    // Further relations:
+
+    /**
+     * @return null|string
+     */
+    public function getTvRegion(): ?string
+    {
+        if(!$this->tv_region) {
+            $this->findTvRegion();
+        }
+
+        return $this->tv_region;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function findTvRegion(): ?string
+    {
+        $this->tv_region = null;
+
+        if ($this->checkConnection()) {
+
+            if ($this->tableExists('postcode_tv_regions')) {
+                // Load the postcode and set all the values including children
+                $results = $this->getConnection()->table('postcode_tv_regions')
+                    ->select('tv_region')
+                    ->where('district', 'LIKE', $this->getOutwardCode())
+                    ->first();
+
+
+
+            }
+            $this->tv_region = $results->tv_region;
+        }
+
+        return $this->tv_region;
     }
 
 }

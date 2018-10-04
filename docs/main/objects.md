@@ -4,6 +4,10 @@
 
 This is the main postcode object, and is the main object you probably want to interact with. It implements `NSPLTrait`.
 
+## PostcodeDistanceCalculator
+
+This offers functionality to compare two postcodes and give an approxmate distance between them.
+
 ## NSPLTrait
 
 This object models data from the National Statistics Postcode Lookup UK CSV. 
@@ -44,4 +48,3 @@ The NSPL data has over 30 csv tables. These are implemented as database tables b
 ## SetupInterface
 
 To ensure all `...Setup` classes setup all necessary files, the `SetupInterface` offers an interface to implement.
-

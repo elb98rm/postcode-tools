@@ -7,7 +7,7 @@
  *
  * php 7.2+
  *
- * @catergny  None
+ * @category  None
  * @package   Floor9design\DatabaseTools
  * @author    Rick Morice <rick@floor9design.com>
  * @copyright Floor9design Ltd (floor9design.com)

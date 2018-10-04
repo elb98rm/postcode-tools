@@ -199,9 +199,9 @@ trait NSPLRelationsTrait
      *
      * @see ../docs/main/nspl_properties.md
      * @see $ru11ind
-     * @var string $ru11inm
+     * @var string $ru11nm
      */
-    protected $ru11inm;
+    protected $ru11nm;
 
     /**
      * oac11_supergroup
@@ -449,6 +449,7 @@ trait NSPLRelationsTrait
     public function getPfa15nm(): ?string
     {
         return $this->pfa15nm;
+
     }
 
 }

@@ -140,7 +140,7 @@ class Postcode
     protected $unit;
 
     /**
-     * The outward code is the part of the postcode after the single space in the middle
+     * The inward code is the part of the postcode after the single space in the middle
      *
      * For example: "1DJ", "0EX"
      *

@@ -247,4 +247,11 @@ interface SetupInterface
      */
     public function createImds(): bool;
 
+    /**
+     * Sets up and populates the postcode_tv_regions table
+     *
+     * @return bool
+     */
+    public function createTvRegion(): bool;
+
 }
