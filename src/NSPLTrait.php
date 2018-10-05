@@ -374,6 +374,22 @@ trait NSPLTrait
     protected $stp;
 
     /**
+     * nationwide_hpis
+     *
+     * @see ../docs/main/usage.md
+     * @var string $nationwide_hpis
+     */
+    protected $nationwide_hpi_authority_code;
+
+    /**
+     * nationwide_local_authority
+     *
+     * @see ../docs/main/usage.md
+     * @var string $nationwide_hpis
+     */
+    protected $nationwide_local_authority;
+
+    /**
      * tv_region
      *
      * @see ../docs/main/usage.md
@@ -568,6 +584,8 @@ trait NSPLTrait
     }
 
     /**
+     * @see https://www.youtube.com/watch?v=kAPXGuRIXsA (obviously)
+     *
      * @return string|null
      */
     public function getNuts(): ?string
@@ -748,6 +766,74 @@ trait NSPLTrait
         }
 
         return $this->tv_region;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getNationwideHpiAuthorityCode(): ?string
+    {
+        if(!$this->nationwide_hpi_authority_code) {
+            $this->findNationwideAuthorityCode();
+        }
+
+        return $this->nationwide_hpi_authority_code;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function findNationwideAuthorityCode(): ?string
+    {
+        $this->nationwide_hpi_authority_code = null;
+
+        if ($this->checkConnection()) {
+
+            if ($this->tableExists('postcode_nationwide_hpis')) {
+                // Load the postcode and set all the values including children
+                $results = $this->getConnection()->table('postcode_nationwide_hpis')
+                    ->select('ons_local_authority_code')
+                    ->where('hpi_region', '=', $this->getLaua())
+                    ->first();
+            }
+            $this->nationwide_hpi_authority_code = $results->ons_local_authority_code;
+        }
+
+        return $this->nationwide_hpi_authority_code;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getNationwideLocalAuthority(): ?string
+    {
+        if(!$this->nationwide_local_authority) {
+            $this->findNationwideLocalAuthority();
+        }
+
+        return $this->nationwide_local_authority;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function findNationwideLocalAuthority(): ?string
+    {
+        $this->nationwide_local_authority = null;
+
+        if ($this->checkConnection()) {
+
+            if ($this->tableExists('postcode_nationwide_hpis')) {
+                // Load the postcode and set all the values including children
+                $results = $this->getConnection()->table('postcode_nationwide_hpis')
+                    ->select('local_authority')
+                    ->where('hpi_region', '=', $this->getLaua())
+                    ->first();
+            }
+            $this->nationwide_local_authority = $results->local_authority;
+        }
+
+        return $this->nationwide_local_authority;
     }
 
 }

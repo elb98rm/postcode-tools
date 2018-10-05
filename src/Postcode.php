@@ -840,6 +840,9 @@ class Postcode
                 $this->status['postcode_lookup'] = 'The postcode was found';
 
                 // Manually set the properties
+
+
+                // NSPL properties
                 foreach ($results as $key => $value) {
                     $this->$key = $value;
                 }

@@ -78,8 +78,9 @@ class DevelopmentSetup implements SetupInterface
         $this->createLeps();
         $this->createPfas();
         $this->createImds();
+        $this->createNationwideHpi();
         $this->createTvRegion();
-
+        $this->createNationwideHpis();
         return true;
     }
 
@@ -1550,6 +1551,51 @@ class DevelopmentSetup implements SetupInterface
         }
 
         if (Capsule::schema()->hasTable('postcode_imds')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
+     * Sets up and populates the nationwide_hpis table
+     *
+     * @return bool
+     */
+    public function createNationwideHpis(): bool
+    {
+        // drop pre-existing setups
+        Capsule::schema()->dropIfExists('postcode_nationwide_hpis');
+
+        // set up the database
+        Capsule::schema()->create('postcode_nationwide_hpis', function (Blueprint $table) {
+            //HPI Region,Local Authority,ONS Local Authority Code
+            $table->string('hpi_region')->primary();
+            $table->string('ons_local_authority_code');
+            $table->string('local_authority');
+
+        });
+
+        if (($handle = fopen('../source/nationwide_hpis.csv', 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+
+                // skip the headers:
+                if ($data[0] != "HPI Region" && $data[1] != "Local Authority") {
+
+                    // No need to import such a simple table:
+                    DB::table('postcode_nationwide_hpis')->insert(
+                        [
+                            'ons_local_authority_code' => $data[0],
+                            'local_authority' => $data[1],
+                            'hpi_region' => $data[2]
+                        ]
+                    );
+                }
+            }
+            fclose($handle);
+        }
+
+        if (Capsule::schema()->hasTable('postcode_nationwide_hpis')) {
             return true;
         } else {
             return false;

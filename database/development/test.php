@@ -17,12 +17,16 @@ $postcodes = ['EC1A 1BB','PE8 4JD'];
 
 $postcode_exporter = new PostcodeExporter();
 
-$valid_postcodes = $postcode_exporter->validateMultiplePostcodes($postcodes, $capsule, true);
+// we're not interested in most of the output:
+$postcode_exporter->setExportFields([]);
+$postcode_exporter->setExtendedExportFields(['lad16nm']);
+$postcode_exporter->setFurtherFields(['tv_region', 'nationwide_local_authority']);
 
-$postcode_exporter->exportPostcodesToCsv($valid_postcodes, 'text_output.csv', true);
+$postcode_exporter->validateMultiplePostcodes($postcodes, $capsule, true);
+$postcode_exporter->exportPostcodesToCsv('text_output.csv', true);
 
 $postcode = new Postcode('EC1A 1BB', $capsule,true);
-$postcode = new Postcode('PE8 4JD', $capsule,true);
+$postcode2 = new Postcode('PE8 4JD', $capsule,true);
 echo "\nThe postcode " . $postcode->getPostcode() . ' has been loaded.';
 
 
@@ -42,11 +46,7 @@ if (!$postcode->getConnection()) {
     echo "\nTV Region: " . $postcode->findTvRegion();
     echo "\nVar dump of the status:\n";
     var_dump($postcode->getStatus());
-    echo "\nNow we compare this to another location (W1A 0AX) to test to distance calculator:";
-
-
-    //$postcode2 = new Postcode('W1A 0AX', $capsule);
-    $postcode2 = new Postcode('S10 1UY', $capsule);
+    echo "\nNow we compare this to another location (PE8 4JD) to test to distance calculator:";
 
     echo "\nPostcode 1 is at : " . $postcode->getLat() . ", " . $postcode->getLong();
     echo "\nPostcode 2 is at : " . $postcode2->getLat() . ", " . $postcode2->getLong();

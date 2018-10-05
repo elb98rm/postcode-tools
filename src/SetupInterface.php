@@ -254,4 +254,11 @@ interface SetupInterface
      */
     public function createTvRegion(): bool;
 
+    /**
+     * Sets up and populates the nationwide_hpis table
+     *
+     * @return bool
+     */
+    public function createNationwideHpis(): bool;
+
 }
