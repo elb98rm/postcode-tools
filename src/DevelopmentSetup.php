@@ -78,7 +78,7 @@ class DevelopmentSetup implements SetupInterface
         $this->createLeps();
         $this->createPfas();
         $this->createImds();
-        $this->createNationwideHpi();
+        $this->createNationwideHpis();
         $this->createTvRegion();
         $this->createNationwideHpis();
         return true;
