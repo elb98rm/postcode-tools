@@ -69,6 +69,7 @@ class DevelopmentSetup implements SetupInterface
         $this->createNutss();
         $this->createParks();
         $this->createLsoa11s();
+        $this->createMsoa11s();
         $this->createWz11s();
         $this->createCcgs();
         $this->createBua11s();
@@ -78,9 +79,10 @@ class DevelopmentSetup implements SetupInterface
         $this->createLeps();
         $this->createPfas();
         $this->createImds();
+
         $this->createNationwideHpis();
         $this->createTvRegion();
-        $this->createNationwideHpis();
+
         return true;
     }
 
@@ -297,46 +299,7 @@ class DevelopmentSetup implements SetupInterface
      */
     public function createOal1s(): bool
     {
-        /*
-        // drop pre-existing setups
-        Capsule::schema()->dropIfExists('postcode_oal1s');
-
-        // set up the database
-        Capsule::schema()->create('postcode_oal1s', function (Blueprint $table) {
-            $table->string('oac11')->primary();
-            $table->string('supergroup');
-            $table->string('group');
-            $table->string('subgroup');
-        });
-
-        // import the existing data
-        if (($handle = fopen('../source/oal1s.csv', 'r')) !== false) {
-            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-
-                // skip the headers:
-                if ($data[0] != "OAC11") {
-
-                    // No need to import such a simple table:
-                    DB::table('postcode_oal1s')->insert(
-                        [
-                            'oac11' => $data[0],
-                            'supergroup' => $data[1],
-                            'group' => $data[2],
-                            'subgroup' => $data[3]
-                        ]
-                    );
-
-                }
-            }
-            fclose($handle);
-        }
-
-        if (Capsule::schema()->hasTable('postcode_oal1s')) {
-            return true;
-        } else {
-            return false;
-        }
-        */
+        return false;
     }
 
     /**
@@ -1162,6 +1125,48 @@ class DevelopmentSetup implements SetupInterface
     }
 
     /**
+     * Sets up and populates the postcode_lsoa11s table
+     *
+     * @return bool
+     */
+    public function createMsoa11s(): bool
+    {
+        // drop pre-existing setups
+        Capsule::schema()->dropIfExists('postcode_msoa11s');
+
+        // set up the database
+        Capsule::schema()->create('postcode_msoa11s', function (Blueprint $table) {
+            $table->string('msoa11cd')->primary();
+            $table->string('msoa11nm');
+        });
+
+        // import the existing data
+        if (($handle = fopen('../source/msoa11s.csv', 'r')) !== false) {
+            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
+
+                // skip the headers:
+                if ($data[0] != "MSOA11CD" && $data[1] != "MSOA11NM") {
+
+                    // No need to import such a simple table:
+                    DB::table('postcode_msoa11s')->insert(
+                        [
+                            'msoa11cd' => $data[0],
+                            'msoa11nm' => $data[1]
+                        ]
+                    );
+                }
+            }
+            fclose($handle);
+        }
+
+        if (Capsule::schema()->hasTable('postcode_msoa11s')) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
+    /**
      * Sets up and populates the postcode_ccgs table
      *
      * @return bool
@@ -1215,42 +1220,7 @@ class DevelopmentSetup implements SetupInterface
      */
     public function createWz11s(): bool
     {
-        /*
-         * @todo find out what table this relates to
-        // drop pre-existing setups
-        Capsule::schema()->dropIfExists('postcode_wz11s');
-
-        // set up the database
-        Capsule::schema()->create('postcode_wz11s', function (Blueprint $table) {
-            $table->string('lsoa11cd')->primary();
-            $table->string('lsoa11nm');
-        });
-
-        // import the existing data
-        if (($handle = fopen('../source/wz11s.csv', 'r')) !== false) {
-            while (($data = fgetcsv($handle, 1000, ',')) !== false) {
-
-                // skip the headers:
-                if ($data[0] != "LSOA11CD" && $data[1] != "LSOA11NM") {
-
-                    // No need to import such a simple table:
-                    DB::table('postcode_wz11s')->insert(
-                        [
-                            'lsoa11cd' => $data[0],
-                            'lsoa11nm' => $data[1]
-                        ]
-                    );
-                }
-            }
-            fclose($handle);
-        }
-
-        if (Capsule::schema()->hasTable('postcode_wz11s')) {
-            return true;
-        } else {
-            return false;
-        }
-        */
+        return false;
     }
 
     /**
@@ -1523,7 +1493,7 @@ class DevelopmentSetup implements SetupInterface
         Capsule::schema()->create('postcode_imds', function (Blueprint $table) {
             $table->string('lsoa11cd')->primary();
             $table->string('lsoa11nm');
-            $table->string('imd15')->nullable();
+            $table->string('imd15')->nullable()->index();
         });
 
         // import the existing data

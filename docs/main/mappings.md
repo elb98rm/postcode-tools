@@ -13,16 +13,16 @@ renamed as follows:
 
 | Approximate name | Example Name | Function of table | Required name |
 | ---------------- |:------------:|:-----------------:| ------------- |
-| NSPL_(month)_20(xx)_UK.csv | NSPL_MAY_2018_UK.csv | Main postcode lookup | npsl.csv |
-| Country names and codes UK as at (date).csv | Country names and codes UK as at 08_12.csv | Counties list | counties.csv |
+| NSPL_(month)_20(xx)_UK.csv | NSPL_AUG_2018_UK.csv | Main postcode lookup | nspl.csv |
+| County names and codes UK as at (date).csv | Country names and codes UK as at 08_12.csv | Counties list | counties.csv |
 | County Electoral Division names and codes EN as at (date).csv | County Electoral Division names and codes EN as at 12_17.csv | Counties list | ceds.csv |
-| oa11 (to be completed) | - | - | - |
-| LA_UA names and codes UK as at (date).csv | LA_UA names and codes UK as at 12_16.csv | LAUA list | lauas.csv |
-| Ward names and codes UK as at (date).csv | Ward names and codes UK as at 12_17.csv | Ward list | wards.csv |
-| HLTHAU names and codes UK as at (date).csv | HLTHAU names and codes UK as at 12_16.csv | HLTHAU list | hlthau.csv |
-| NHSER names and codes EN as at (date).csv | NHSER names and codes EN as at 04_17.csv | NHSER list | nhser.csv |
+| oa11 (to be completed) | - | - | - | *****
+| LA_UA names and codes UK as at (date).csv | LA_UA names and codes UK as at 12_18.csv | LAUA list | lauas.csv |
+| Ward names and codes UK as at (date).csv | Ward names and codes UK as at 12_18.csv | Ward list | wards.csv |
+| HLTHAU names and codes UK as at (date).csv | HLTHAU names and codes UK as at 12_16.csv | HLTHAU list | hlthaus.csv |
+| NHSER names and codes EN as at (date).csv | NHSER names and codes EN as at 04_17.csv | NHSER list | nhsers.csv |
 | Country names and codes UK as at (date).csv | Country names and codes UK as at 08_12.csv | Countries list | countries.csv |
-| Region names and codes EN as at (date).csv | Region names and codes EN as at 12_10 (GOR).csv | Regions list | rgns.csv |
+| Region names and codes EN as at (date)(GOR).csv | Region names and codes EN as at 12_10 (GOR).csv | Regions list | rgns.csv |
 | Westminster Parliamentary Constituency names and codes UK as at (date).csv | Westminster Parliamentary Constituency names and codes UK as at 12_14.csv | Parlaimentary Consituency names list | pcons.csv |
 | EER names and codes UK as at (date).csv | EER names and codes UK as at 12_10.csv | EU Consituency names list | eers.csv |
 | TECLEC names and codes UK as at (date).csv | TECLEC names and codes UK as at 12_16.csv | TECLEC | teclecs.csv |
@@ -31,7 +31,8 @@ renamed as follows:
 | LAU2 names and codes UK as at (date) (NUTS).csv | LAU2 names and codes UK as at 12_16 (NUTS).csv | NUTS lists | nutss.csv |
 | National Park names and codes GB as at (date).csv | National Park names and codes GB as at 08_16.csv | Park lists | parks.csv |
 | LSOA (date) names and codes UK as at (date).csv | LSOA (2011) names and codes UK as at 12_12.csv | LSOA list | lsoa11s.csv |
-| wz11 (to be completed) | - | - | - |
+| MSOA (date) names and codes UK as at (date).csv | MSOA (2011) names and codes UK as at 12_12.csv | MSOA list | msoa11s.csv |
+| wz11 (to be completed) | - | - | - | *****
 | CCG names and codes UK as at (date).csv | CCG names and codes UK as at 04_18.csv | CCG list | ccgs.csv |
 | BUA_names and codes UK as at (date).csv | BUA_names and codes UK as at 12_13.csv | BUA list | bua11s.csv |
 | BUASD_names and codes UK as at (date).csv | BUASD_names and codes UK as at 12_13.csv | BUASD list | buasd11s.csv |

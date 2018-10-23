@@ -185,6 +185,13 @@ interface SetupInterface
     public function createLsoa11s(): bool;
 
     /**
+     * Sets up and populates the postcode_msoa11s table
+     *
+     * @return bool
+     */
+    public function createMsoa11s(): bool;
+
+    /**
      * Sets up and populates the postcode_wz11s table
      *
      * @return bool
@@ -246,19 +253,5 @@ interface SetupInterface
      * @return bool
      */
     public function createImds(): bool;
-
-    /**
-     * Sets up and populates the postcode_tv_regions table
-     *
-     * @return bool
-     */
-    public function createTvRegion(): bool;
-
-    /**
-     * Sets up and populates the nationwide_hpis table
-     *
-     * @return bool
-     */
-    public function createNationwideHpis(): bool;
 
 }

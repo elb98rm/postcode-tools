@@ -473,7 +473,7 @@ class PostcodeExporter
                     $array[$postcode->getPcd()]['ced17nm'] = $postcode->getCed17nm();
                 }
                 if(in_array('lad16nm', $this->getExtendedExportFields())){
-                    $array[$postcode->getPcd()]['lad16nm'] = $postcode->getLad17nm();
+                    $array[$postcode->getPcd()]['lad16nm'] = $postcode->getLad16nm();
                 }
                 if(in_array('wd17nm', $this->getExtendedExportFields())){
                     $array[$postcode->getPcd()]['wd17nm'] = $postcode->getWd17nm();

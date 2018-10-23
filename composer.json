@@ -1,7 +1,7 @@
 {
   "name": "floor9design/postcode-tools",
-  "description": "Standard for PHP package skeletons.",
-  "homepage": "https://github.com/php-pds/skeleton",
+  "description": "A set of UK postcode tools",
+  "homepage": "https://github.com/elb98rm/postcode-tools",
   "license": "MIT",
   "require": {
     "php": ">=7.2",

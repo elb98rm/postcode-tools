@@ -83,7 +83,7 @@ trait NSPLTrait
      * Postcode usertype
      *
      * @see ../docs/main/nspl_properties.md
-     * @var bool $usertype
+     * @var int $usertype
      */
     protected $usertype;
 
@@ -440,9 +440,9 @@ trait NSPLTrait
     }
 
     /**
-     * @return bool|null
+     * @return int|null
      */
-    public function getUsertype(): ?bool
+    public function getUsertype(): ?int
     {
         return $this->usertype;
     }
@@ -474,7 +474,7 @@ trait NSPLTrait
     /**
      * @return string|null
      */
-    public function getOal1(): ?string
+    public function getOa11(): ?string
     {
         return $this->oa11;
     }
@@ -829,8 +829,8 @@ trait NSPLTrait
                     ->select('local_authority')
                     ->where('hpi_region', '=', $this->getLaua())
                     ->first();
+                $this->nationwide_local_authority = $results->local_authority;
             }
-            $this->nationwide_local_authority = $results->local_authority;
         }
 
         return $this->nationwide_local_authority;

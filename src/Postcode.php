@@ -44,6 +44,7 @@ class Postcode
 {
     use NSPLTrait;
     use NSPLRelationsTrait;
+    use NSPLAliasesTrait;
 
     // Properties
 
@@ -288,6 +289,15 @@ class Postcode
      */
     public function validatePostcode(string $postcode): ?string
     {
+        // firstly, make all caps for correctness:
+        $postcode = strtoupper($postcode);
+
+        // add a space in case it's been forgotten:
+        if(!strrpos($postcode, ' ')) {
+            // space is always before the last three characters:
+            $postcode = substr($postcode, 0, -3) . " " . substr($postcode, -3);
+        }
+
         $matches = [];
         preg_match($this->getPostcodeRegex(), $postcode, $matches);
 
@@ -516,7 +526,8 @@ class Postcode
     }
 
     /**
-     * This is protected to stop invalid postcodes. The function you probably want to use is: loadPostcode()
+     * This is protected to stop invalid postcodes being incorrectly set.
+     * The function you probably want to use is: loadPostcode()
      *
      * @see Postcode::loadPostcode()
      *
@@ -763,33 +774,42 @@ class Postcode
                                 'postcode_nspls.*',
                                 'postcode_usertypes.usertype as usertype_verbose',
                                 'postcode_osgrdinds.osgrdind as osgrdind_verbose',
+                                'postcode_counties.cty10nm as cty10nm',
                                 'postcode_ceds.ced17nm as ced17nm',
                                 'postcode_lauas.lad16nm as lad16nm',
                                 'postcode_wards.wd17nm as wd17nm',
+                                'postcode_hlthaus.hlthaunm as hlthaunm',
                                 'postcode_nhsers.nhser17nm as nhser17nm',
                                 'postcode_countries.ctry12nm as ctry12nm',
-                                'postcode_rgns.gor10nm as rgn_gor10nm',
-                                'postcode_pcons.pcon14cd as pcon14nm',
+                                'postcode_rgns.gor10nm as gor10nm',
+                                'postcode_pcons.pcon14nm as pcon14nm',
                                 'postcode_eers.eer10nm as eer10nm',
                                 'postcode_teclecs.teclecnm as teclecnm',
                                 'postcode_ttwas.ttwa11nm as ttwa11nm',
-                                'postcode_ttwas.ttwa11nm as ttwa11nm',
-                                'postcode_nutss.lau216cd as lau216nm',
+                                'postcode_pcts.pctnm as pctnm',
+                                'postcode_nutss.lau216nm as lau216nm',
+                                'postcode_parks.npark16nm as npark16nm',
+                                'postcode_lsoa11s.lsoa11nm as lsoa11nm',
+                                'postcode_msoa11s.msoa11nm as msoa11nm',
                                 'postcode_ccgs.ccg18nm as ccg18nm',
                                 'postcode_bua11s.bua13nm as bua13nm',
+                                'postcode_buasd11s.buasd13nm as buasd13nm',
                                 'postcode_ru11inds.ru11nm as ru11nm',
                                 'postcode_oac11s.supergroup as oac11_supergroup',
                                 'postcode_oac11s.group as oac11_group',
                                 'postcode_oac11s.subgroup as oac11_subgroup',
-                                'leps1.lep17nm as leps1_lep17nm',
-                                'leps2.lep17nm as leps2_lep17nm',
-                                'postcode_pfas.pfa15nm'
+                                'leps1.lep17nm as lep1_lep17nm',
+                                'leps2.lep17nm as lep2_lep17nm',
+                                'postcode_pfas.pfa15nm as pfa15nm',
+                                'postcode_imds.lsoa11nm as imd_lsoa11nm'
                             )
                             ->leftJoin('postcode_usertypes', 'postcode_nspls.usertype', '=', 'postcode_usertypes.id')
                             ->leftJoin('postcode_osgrdinds', 'postcode_nspls.osgrdind', '=', 'postcode_osgrdinds.id')
+                            ->leftJoin('postcode_counties', 'postcode_nspls.cty', '=', 'postcode_counties.cty10cd')
                             ->leftJoin('postcode_ceds', 'postcode_nspls.ced', '=', 'postcode_ceds.ced17cd')
                             ->leftJoin('postcode_lauas', 'postcode_nspls.laua', '=', 'postcode_lauas.lad16cd')
                             ->leftJoin('postcode_wards', 'postcode_nspls.ward', '=', 'postcode_wards.wd17cd')
+                            ->leftJoin('postcode_hlthaus', 'postcode_nspls.hlthau', '=', 'postcode_hlthaus.hlthaucd')
                             ->leftJoin('postcode_nhsers', 'postcode_nspls.nhser', '=', 'postcode_nhsers.nhser17cd')
                             ->leftJoin('postcode_countries', 'postcode_nspls.ctry', '=', 'postcode_countries.ctry12cd')
                             ->leftJoin('postcode_rgns', 'postcode_nspls.rgn', '=', 'postcode_rgns.gor10cd')
@@ -797,17 +817,23 @@ class Postcode
                             ->leftJoin('postcode_eers', 'postcode_nspls.eer', '=', 'postcode_eers.eer10cd')
                             ->leftJoin('postcode_teclecs', 'postcode_nspls.teclec', '=', 'postcode_teclecs.tecleccd')
                             ->leftJoin('postcode_ttwas', 'postcode_nspls.ttwa', '=', 'postcode_ttwas.ttwa11cd')
+                            ->leftJoin('postcode_pcts', 'postcode_nspls.pct', '=', 'postcode_pcts.pctcd')
                             ->leftJoin('postcode_nutss', 'postcode_nspls.nuts', '=', 'postcode_nutss.lau216cd')
                             ->leftJoin('postcode_parks', 'postcode_nspls.park', '=', 'postcode_parks.npark16cd')
+                            ->leftJoin('postcode_lsoa11s', 'postcode_nspls.lsoa11', '=', 'postcode_lsoa11s.lsoa11cd')
+                            ->leftJoin('postcode_msoa11s', 'postcode_nspls.msoa11', '=', 'postcode_msoa11s.msoa11cd')
                             ->leftJoin('postcode_ccgs', 'postcode_nspls.ccg', '=', 'postcode_ccgs.ccg18cd')
                             ->leftJoin('postcode_bua11s', 'postcode_nspls.bua11', '=', 'postcode_bua11s.bua13cd')
+                            ->leftJoin('postcode_buasd11s', 'postcode_nspls.buasd11', '=', 'postcode_buasd11s.buasd13cd')
                             ->leftJoin('postcode_ru11inds', 'postcode_nspls.ru11ind', '=', 'postcode_ru11inds.ru11ind')
                             ->leftJoin('postcode_oac11s', 'postcode_nspls.oac11', '=', 'postcode_oac11s.oac11')
                             ->leftJoin('postcode_leps as leps1', 'postcode_nspls.lep1', '=', 'leps1.lep17cd')
                             ->leftJoin('postcode_leps as leps2', 'postcode_nspls.lep2', '=', 'leps2.lep17cd')
                             ->leftJoin('postcode_pfas', 'postcode_nspls.pfa', '=', 'postcode_pfas.pfa15cd')
+                            ->leftJoin('postcode_imds', 'postcode_nspls.imd', '=', 'postcode_imds.imd15')
                             ->where('pcd', '=', $this->getPostcode())
                             ->orWhere('pcd2', '=', $this->getPostcode())
+                            ->orWhere('pcds', '=', $this->getPostcode())
                             ->first();
                     } else {
                         throw new Exception("Some of the postcode tables do not exist. It's likely that these haven't been set up.");
@@ -838,9 +864,6 @@ class Postcode
                 $this->status['postcode_lookup'] = 'The postcode could not be found in the database';
             } else {
                 $this->status['postcode_lookup'] = 'The postcode was found';
-
-                // Manually set the properties
-
 
                 // NSPL properties
                 foreach ($results as $key => $value) {

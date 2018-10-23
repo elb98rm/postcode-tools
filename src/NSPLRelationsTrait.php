@@ -35,6 +35,7 @@ namespace Floor9design\PostcodeTools;
  * @version   1.0
  * @link      http://floor9design.com
  * @see       ../docs/main/objects.md#NSPLRelationsTrait
+ * @see       NSPLAliasesTrait
  * @since     File available since Release 1.0
  */
 trait NSPLRelationsTrait
@@ -45,25 +46,40 @@ trait NSPLRelationsTrait
      * Postcode user verbose
      *
      * @see ../docs/main/nspl_properties.md
-     * @see $usertype
+     * @see Postcode::$usertype
+     * @see NSPLAliasesTrait::getPostcodeUserType()
+     *
      * @var string $usertype_verbose
      */
     protected $usertype_verbose;
 
     /**
-     * Osgrdind verbose
+     * osgrdind_verbose
      *
      * @see ../docs/main/nspl_properties.md
-     * @see $osgrdind
+     * @see Postcode::$osgrdind
+     * @see NSPLAliasesTrait::getPositionalQualityIndicator()
+     *
      * @var string $osgrdind_verbose
      */
     protected $osgrdind_verbose;
+
+    /**
+     * cty10nm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $cty10cd
+     * @var string $cty10nm
+     */
+    protected $cty10nm;
 
     /**
      * ced17nm
      *
      * @see ../docs/main/nspl_properties.md
      * @see $ced17cd
+     * @see
+     *
      * @var string $ced17nm
      */
     protected $ced17nm;
@@ -85,6 +101,15 @@ trait NSPLRelationsTrait
      * @var string $wd17nm
      */
     protected $wd17nm;
+
+    /**
+     * hlthaunm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $hlthau
+     * @var string $hlthaunm
+     */
+    protected $hlthaunm;
 
     /**
      * wd17nm
@@ -150,6 +175,15 @@ trait NSPLRelationsTrait
     protected $ttwa11nm;
 
     /**
+     * pctnm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $pct
+     * @var string $pctnm
+     */
+    protected $pctnm;
+
+    /**
      * lau216nm
      *
      * @see ../docs/main/nspl_properties.md
@@ -166,6 +200,24 @@ trait NSPLRelationsTrait
      * @var string $npark16nm
      */
     protected $npark16nm;
+
+    /**
+     * lsoa11nm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $lsoa11
+     * @var string $lsoa11nm
+     */
+    protected $lsoa11nm;
+
+    /**
+     * msoa11nm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $msoa11
+     * @var string $msoa11nm
+     */
+    protected $msoa11nm;
 
     /**
      * ccg18nm
@@ -257,10 +309,19 @@ trait NSPLRelationsTrait
      */
     protected $pfa15nm;
 
+    /**
+     * imd_lsoa11nm
+     *
+     * @see ../docs/main/nspl_properties.md
+     * @see $imd_lsoa11nm
+     * @var string $imd_lsoa11nm
+     */
+    protected $imd_lsoa11nm;
+
     // Accessors
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getUsertypeVerbose(): ?string
     {
@@ -268,7 +329,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getOsgrdindVerbose(): ?string
     {
@@ -276,7 +337,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getCed17nm(): ?string
     {
@@ -284,15 +345,23 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
-    public function getLad17nm(): ?string
+    public function getCty10nm(): ?string
+    {
+        return $this->cty10nm;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getLad16nm(): ?string
     {
         return $this->lad16nm;
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getWd17nm(): ?string
     {
@@ -300,7 +369,15 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
+     */
+    public function getHlthaunm(): ?string
+    {
+        return $this->hlthaunm;
+    }
+
+    /**
+     * @return null|string
      */
     public function getNhser17nm(): ?string
     {
@@ -308,7 +385,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getCtry12nm(): ?string
     {
@@ -316,7 +393,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getGor10nm(): ?string
     {
@@ -324,7 +401,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getPcon14nm(): ?string
     {
@@ -332,7 +409,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getEer10nm(): ?string
     {
@@ -340,7 +417,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getTeclecnm(): ?string
     {
@@ -348,7 +425,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getTtwa11nm(): ?string
     {
@@ -356,7 +433,15 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
+     */
+    public function getPctnm(): ?string
+    {
+        return $this->pctnm;
+    }
+
+    /**
+     * @return null|string
      */
     public function getLau216nm(): ?string
     {
@@ -364,7 +449,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getNpark16nm(): ?string
     {
@@ -372,7 +457,23 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
+     */
+    public function getLsoa11nm(): ?string
+    {
+        return $this->lsoa11nm;
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getMsoa11nm(): ?string
+    {
+        return $this->msoa11nm;
+    }
+
+    /**
+     * @return null|string
      */
     public function getCcg18nm(): ?string
     {
@@ -380,7 +481,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getBua13nm(): ?string
     {
@@ -388,7 +489,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getBuasd13nm(): ?string
     {
@@ -396,7 +497,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getRu11nm(): ?string
     {
@@ -404,7 +505,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getOac11Supergroup(): ?string
     {
@@ -412,7 +513,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getOac11Group(): ?string
     {
@@ -420,7 +521,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getOac11Subgroup(): ?string
     {
@@ -428,7 +529,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getLep1Lep17nm(): ?string
     {
@@ -436,7 +537,7 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getLep2Lep17nm(): ?string
     {
@@ -444,11 +545,20 @@ trait NSPLRelationsTrait
     }
 
     /**
-     * @return int|string
+     * @return null|string
      */
     public function getPfa15nm(): ?string
     {
         return $this->pfa15nm;
+
+    }
+
+    /**
+     * @return null|string
+     */
+    public function getImdLsoa11nm(): ?string
+    {
+        return $this->imd_lsoa11nm;
 
     }
 
