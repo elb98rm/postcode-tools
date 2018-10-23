@@ -14,7 +14,7 @@ batch postcode lookup, postcode validator, and postcode distance calculator.
 
 ## Installation
  
-This is discussed within the [installation](docs/main/installation.md)
+This is discussed within the [installation](docs/main/installation.md) section.
 
 ## Requirements
 

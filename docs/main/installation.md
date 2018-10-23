@@ -1,6 +1,6 @@
 # Installation
 
-There are two to installation:
+There are two aspects to installation:
 
 * Codebase (required)
 * Datasets (optional)
@@ -15,14 +15,16 @@ In the meantime, clone this from Github.
 
 ## Datasets
 
-The raw codebase does not contain any of the datasets. This codebase uses the data from the ONS. It needs to be firstly 
-downloaded. The appropriate files should be extracted and renamed as required. 
+The raw codebase does not contain any of the datasets. It is not required to use them, but should you want to (which is 
+recommended) which needs to be firstly downloaded from the ONS. 
+
+This download should be extracted, and the appropriate files need to be extracted and renamed as required. 
 
 The first step is to download the latest dataset: 
 
 * [geoportal.statistics.gov.uk](http://geoportal.statistics.gov.uk/)
 
-This allows a search for datasets. For example, at the time of writing, this is the dataset:
+For example, at the time of writing, this is the dataset:
 
 * [NSPL (August 2018)](https://ons.maps.arcgis.com/home/item.html?id=3e4f5ac3c57a418b852a063bbccd8dbc) 
 
