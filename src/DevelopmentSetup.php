@@ -1493,7 +1493,7 @@ class DevelopmentSetup implements SetupInterface
         Capsule::schema()->create('postcode_imds', function (Blueprint $table) {
             $table->string('lsoa11cd')->primary();
             $table->string('lsoa11nm');
-            $table->string('imd15')->nullable()->index();
+            $table->integer('imd15')->nullable()->index();
         });
 
         // import the existing data
