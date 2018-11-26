@@ -570,7 +570,7 @@ class NSPL
                 'oseast1m' => $this->getOseast1m(),
                 'osnrth1m' => $this->getOsnrth1m(),
                 'osgrdind' => $this->getOsgrdind(),
-                'oa11' => $this->getOal1(),
+                'oa11' => $this->getOa11(),
                 'cty' => $this->getCty(),
                 'ced' => $this->getCed(),
                 'laua' => $this->getLaua(),
